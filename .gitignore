@@ -1,0 +1,10 @@
+# Exclude generated files or project downloaded project dependencies
+/node_modules
+dist
+out
+
+# Exclude generated log files
+*.log*
+
+# Exclude MacOs specific files
+.DS_Store
