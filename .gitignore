@@ -8,3 +8,6 @@ out
 
 # Exclude MacOs specific files
 .DS_Store
+
+# Temporarily exclude django backend
+backend
