@@ -8,3 +8,6 @@ electron-react-frontend/*.log*
 
 # Exclude MacOs specific files
 .DS_Store
+
+# Exclude any compiled files
+*.pyc
