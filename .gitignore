@@ -1,13 +1,10 @@
 # Exclude generated files or project downloaded project dependencies
-/node_modules
-dist
-out
+electron-react-frontend/node_modules
+electron-react-frontend/dist
+electron-react-frontend/out
 
 # Exclude generated log files
-*.log*
+electron-react-frontend/*.log*
 
 # Exclude MacOs specific files
 .DS_Store
-
-# Temporarily exclude django backend
-backend

@@ -9,16 +9,6 @@ import ZeissLogo from '../../../resources/zeiss-logo.png'
  * @returns all the code
  */
 function App(): JSX.Element {
-  /*const [text, setText] = useState('')
-  const [message, setMessage] = useState<string>('')
-  const [previousChats, setPreviousChats] = useState<[]>([])
-  const [localChats, setLocalChats] = useState([])
-  const [currentTitle, setCurrentTitle] = useState<string>('')
-  const [isResponseLoading, setIsResponseLoading] = useState(false)
-  const [errorText, setErrorText] = useState('')
-  const [isShowSidebar, setIsShowSidebar] = useState(false)
-  const scrollToLastItem = useRef(null)
-*/
   const [text, setText] = useState('')
   const [gptVersion, setGptVersion] = useState('')
   const [message, setMessage] = useState(null)
@@ -55,6 +45,7 @@ function App(): JSX.Element {
   }, [])
 
   const submitHandler = async (e) => {
+    //console.log(e.target[0].value)
     e.preventDefault()
     return setErrorText('My billing plan is gone because of many requests.')
     if (!text) return
@@ -171,6 +162,8 @@ function App(): JSX.Element {
 
   return (
     <div className="container">
+      {/* This only shows the first time the app gets called.
+          User needs to choose between two gpt versions */}
       {gptVersion == '' && <ChooseGptVersion />}
       <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
         <div className="sidebar-header" onClick={createNewChat} role="button">
@@ -238,7 +231,6 @@ function App(): JSX.Element {
           <div className="empty-chat-container">
             <img src={ZeissLogo} width={45} height={45} alt="ChatGPT" />
             <h1>Chat {gptVersion} Clone</h1>
-            <h3>How can I help you today?</h3>
           </div>
         )}
 
