@@ -30,6 +30,11 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# White listing the localhost:5173 port for React Electron application
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:5173',
+)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'openaiapi',
+    'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # need Django-cors-headers for whitelisting the port where the react app will run on
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'
