@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md'
-import { RxReload } from "react-icons/rx";
+import { RxReload, RxCopy } from 'react-icons/rx'
 
 import { AxiosRequestHandler } from './components/AxiosRequestHandler'
 import ZeissLogo from '../../../resources/zeiss-logo.png'
@@ -200,23 +200,8 @@ function App(): JSX.Element {
                   ) : (
                     <div style={{ display: 'block' }}>
                       <img src={ZeissLogo} alt="ChatGPT" />
-                      <div
-                        title="regenerate request"
-                        className="refresh-request"
-                        onClick={async () => {
-                          if (window.localStorage.getItem('lastRequest') !== '') {
-                            setIsResponseLoading(true)
-                            const return_msg = await AxiosRequestHandler(
-                              window.localStorage.getItem('lastRequest'),
-                              'openai_request'
-                            )
-                            setMessage(return_msg.data.message)
-                            setIsResponseLoading(false)
-                          }
-                        }}
-                      >
-                        <RxReload />
-                      </div>
+                      <RespawnUserRequest />
+                      <CopyLastResponseToClipboard />
                     </div>
                   )}
                   {isUser ? (
@@ -227,7 +212,9 @@ function App(): JSX.Element {
                   ) : (
                     <div>
                       <p className="role-title">{gptVersion}</p>
-                      <p className="gpt-response">{chatMsg.content}</p>
+                      <div id="response">
+                        <p className="gpt-response">{chatMsg.content}</p>
+                      </div>
                     </div>
                   )}
                 </li>
@@ -258,6 +245,51 @@ function App(): JSX.Element {
     </div>
   )
 
+  function CopyLastResponseToClipboard(): JSX.Element {
+    return (
+      <div
+        title="copy to clipboard"
+        className="refresh-request"
+        id={'containerDiv'}
+        onClick={() => {
+          const content = document.getElementById('response')?.innerText
+          // Copy the text to the clipboard
+          navigator.clipboard
+            .writeText(content?.trim())
+            .then(() => {
+              alert('Text copied to clipboard!')
+            })
+            .catch((err) => {
+              console.error('Failed to copy text: ', err)
+            })
+        }}
+      >
+        <RxCopy />
+      </div>
+    )
+  }
+
+  function RespawnUserRequest(): JSX.Element {
+    return (
+      <div
+        title="regenerate request"
+        className="refresh-request"
+        onClick={async () => {
+          if (window.localStorage.getItem('lastRequest') !== '') {
+            setIsResponseLoading(true)
+            const return_msg = await AxiosRequestHandler(
+              window.localStorage.getItem('lastRequest'),
+              'openai_request'
+            )
+            setMessage(return_msg.data.message)
+            setIsResponseLoading(false)
+          }
+        }}
+      >
+        <RxReload />
+      </div>
+    )
+  }
   /**
    *
    * @returns
