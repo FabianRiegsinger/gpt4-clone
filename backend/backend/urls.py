@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from openaiapi.views import receive_string
+from openaiapi.views import openai_request, set_temperature
 
 # import views from todo
 from openaiapi import views
@@ -27,10 +27,10 @@ from openaiapi import views
 from rest_framework import routers
 
 # create a router object
-router = routers.DefaultRouter()
+#router = routers.DefaultRouter()
 
 # register the router
-router.register(r'tasks',views.OpenAiApiView, 'task')
+#router.register(r'tasks',views.OpenAiApiView, 'task')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,6 +38,7 @@ urlpatterns = [
     # add another path to the url patterns
     # when you visit the localhost:8000/api
     # you should be routed to the django Rest framework
-    path('api/', include(router.urls)),
-    path('api/openai_request/', receive_string, name='receive_string'),
+    #path('api/', include(router.urls)),
+    path('api/openai_request/', openai_request, name='openai_request'),
+    path('api/set_temperature/', set_temperature, name='set_temperature'),
 ]

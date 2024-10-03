@@ -12,19 +12,20 @@ import ZeissLogo from '../../../resources/zeiss-logo.png'
 function App(): JSX.Element {
   const [text, setText] = useState('')
   const [gptVersion, setGptVersion] = useState('')
-  const [message, setMessage] = useState(null)
+  const [modelTemp, setModelTemp] = useState(1.0)
+  const [message, setMessage] = useState('') // was null before
   const [previousChats, setPreviousChats] = useState([])
   const [localChats, setLocalChats] = useState([])
-  const [currentTitle, setCurrentTitle] = useState(null)
+  const [currentTitle, setCurrentTitle] = useState('') // was null before
   const [isResponseLoading, setIsResponseLoading] = useState(false)
   const [errorText, setErrorText] = useState('')
   const [isShowSidebar, setIsShowSidebar] = useState(false)
   const scrollToLastItem = useRef(null)
 
   const deleteChatContent = (): void => {
-    setMessage(null)
+    setMessage('')
     setText('')
-    setCurrentTitle(null)
+    setCurrentTitle('')
   }
 
   /*const backToHistoryPrompt = (uniqueTitle): void => {
@@ -45,18 +46,61 @@ function App(): JSX.Element {
     setIsShowSidebar((prev) => !prev)
   }, [])
 
+  const checkChangeInTemperature = async (msg: string): any => {
+    // Regex to match numbers
+    const match = msg.match(/[-+]?[0-9]*\.?[0-9]+/)
+    // Convert extracted number to floating point if possible. Otherwise, return null
+    const temp_number = match ? parseFloat(match[0]) : null
+    if (temp_number) {
+      // Send request to backend to change temperature of model
+      try {
+        await axios.post('http://localhost:8000/api/set_temperature/', {
+          data: temp_number
+        })
+        setMessage(`Sucessfully changed temperature of model ${gptVersion} to ${temp_number}`)
+      } catch (error) {
+        if (error.response) {
+          // Server responded with a status other than 200 range
+          console.log(`Error: ${error.response.data.error}`)
+        } else if (error.request) {
+          // Request was made but no response received
+          console.log('Error: No response from server')
+        } else {
+          // Other errors
+          console.log(`Error: ${error.message}`)
+        }
+      }
+    } else {
+      console.log('not a number')
+      setMessage('Invalid input! Please try again')
+      return
+    }
+  }
+
+  // Main entry point for the users request.
+  // First check if request empty. If so, cancel further process
+  // Secondly: check if string is only known configuration string to configure model temperature
+  // If first and second do not apply proceed with openai api request
   const submitHandler = async (e) => {
+    // Check if request empty
+    if (e.target[0].value === '') {
+      return e.preventDefault()
+    }
+    //checkChangeInTemperature(e.target[0].value)
     //console.log(e.target[0].value)
     //Axios to send and receive HTTP requests
-    //setMessage(e.target[0].value)
     e.preventDefault()
+
     try {
       const response = await axios.post('http://localhost:8000/api/openai_request/', {
-        data: 'Das ist ein Test'
+        data: e.target[0].value
       })
 
       // Handle the response
       console.log(response.data.message)
+      // Empty input field
+      //setText('')
+      setMessage(response.data.message)
     } catch (error) {
       if (error.response) {
         // Server responded with a status other than 200 range
@@ -69,7 +113,7 @@ function App(): JSX.Element {
         console.log(`Error: ${error.message}`)
       }
     }
-    return setErrorText('My billing plan is gone because of many requests.')
+    return setErrorText('error')
     if (!text) return
 
     setIsResponseLoading(true)
@@ -157,7 +201,7 @@ function App(): JSX.Element {
       const responseMessage = {
         title: currentTitle,
         role: message.role,
-        content: message.content
+        content: message
       }
 
       //setPreviousChats((prevChats) => [...prevChats, newChat, responseMessage])
@@ -249,8 +293,11 @@ function App(): JSX.Element {
       <section className="main">
         {!currentTitle && (
           <div className="empty-chat-container">
-            <img src={ZeissLogo} width={100} height={100} alt="ChatGPT" />
+            <img src={ZeissLogo} width={100} height={100} alt={gptVersion} />
             <h1>Chat {gptVersion} Clone</h1>
+            <h3>Default temperature: {modelTemp}</h3>
+            <h3>In order to change model temperature type (i.e.): temp=0.1</h3>
+            <h3>Valid range for setting the temperature: [0.1 ... 1.0]</h3>
           </div>
         )}
 
@@ -275,12 +322,12 @@ function App(): JSX.Element {
                   )}
                   {isUser ? (
                     <div>
-                      <p className="role-title">You</p>
+                      <p className="role-title">User Request</p>
                       <p>{chatMsg.content}</p>
                     </div>
                   ) : (
                     <div>
-                      <p className="role-title">ChatGPT</p>
+                      <p className="role-title">{gptVersion}</p>
                       <p>{chatMsg.content}</p>
                     </div>
                   )}
