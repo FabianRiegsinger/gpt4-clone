@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md'
-//import axios from 'axios'
+import { RxReload } from "react-icons/rx";
 
 import { AxiosRequestHandler } from './components/AxiosRequestHandler'
-
 import ZeissLogo from '../../../resources/zeiss-logo.png'
 
 /**
@@ -20,36 +19,50 @@ function App(): JSX.Element {
   const [localChats, setLocalChats] = useState([])
   const [currentTitle, setCurrentTitle] = useState('') // was null before
   const [isResponseLoading, setIsResponseLoading] = useState(false)
-  const [errorText, setErrorText] = useState('')
+  //const [errorText, setErrorText] = useState('')
   const [isShowSidebar, setIsShowSidebar] = useState(false)
   const scrollToLastItem = useRef(null)
 
+  /**
+   * Deletes content of chat window. Basically resets everything
+   */
   const deleteChatContent = (): void => {
     setMessage('')
     setText('')
+    window.localStorage.setItem('lastRequest', '')
     setCurrentTitle('')
   }
 
-  /*const backToHistoryPrompt = (uniqueTitle): void => {
-    setCurrentTitle(uniqueTitle)
-    setMessage('')
-    setText('')
-  }*/
-
+  /**
+   * function which gets called when gpt-4o button got pressed at the beginning
+   * Uses Rest API to set gpt model type to gpt-4o
+   */
   const chooseGpt4o = (): any => {
     AxiosRequestHandler('gpt-4o', 'set_model')
     setGptVersion('gpt-4o')
   }
 
+  /**
+   * function which gets called when gpt-4o button got pressed at the beginning
+   * Uses Rest API to set gpt model type to gpt-4o-mini
+   */
   const chooseGpt4Mini = (): any => {
     AxiosRequestHandler('gpt-4o-mini', 'set_model')
     setGptVersion('gpt-4o-mini')
   }
 
+  /**
+   * Just a toggle to show or hide the sidebar
+   */
   const toggleSidebar = useCallback(() => {
     setIsShowSidebar((prev) => !prev)
   }, [])
 
+  /**
+   * Asynchronous function which checks if the users input is correct and uses the
+   * REST API to set the models temperature to the users desired value.
+   * @param msg Should look like setModelsTemp=0.2
+   */
   async function changeModelsTemperature(msg: string): Promise<string> {
     // Regex to match numbers
     const match = msg.match(/[-+]?[0-9]*\.?[0-9]+/)
@@ -63,11 +76,16 @@ function App(): JSX.Element {
     }
   }
 
-  // Main entry point for the users request.
-  // First check if request empty. If so, cancel further process
-  // Secondly: check if string is only known configuration string to configure model temperature
-  // If first and second do not apply proceed with openai api request
+  /**
+   * Main entry point for the users request.
+   * First check if request is empty. If so, cancel further process.
+   * Secondly: Check if string is only known configuration string to configure model temperature.
+   * @param e event variable
+   * @returns nothing
+   */
   const submitHandler = async (e) => {
+    // safe text from input field in variable
+    window.localStorage.setItem('lastRequest', e.target[0].value)
     // Check if request empty
     if (e.target[0].value === '') {
       return e.preventDefault()
@@ -90,26 +108,13 @@ function App(): JSX.Element {
 
     setIsResponseLoading(true)
     const return_msg = await AxiosRequestHandler(e.target[0].value, 'openai_request')
-
     setMessage(return_msg.data.message)
     setIsResponseLoading(false)
     //return setErrorText('error')
     return
   }
 
-  useLayoutEffect(() => {
-    const handleResize = (): void => {
-      setIsShowSidebar(window.innerWidth <= 640)
-    }
-    handleResize()
-
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
+  // Invoke useEffect hook when dependencies change aka message and/or currentTitle
   useEffect(() => {
     if (!currentTitle && text && message) {
       setCurrentTitle(text)
@@ -136,10 +141,12 @@ function App(): JSX.Element {
     }
   }, [message, currentTitle])
 
+  //TODO: Finalize multiple chat window attempt
   const currentChat = (localChats || previousChats).filter(
     (prevChat) => prevChat.title === currentTitle
   )
 
+  // Returns UI of entire app
   return (
     <div className="container">
       {/* This only shows the first time the app gets called.
@@ -191,7 +198,26 @@ function App(): JSX.Element {
                       <BiSolidUserCircle size={28.8} />
                     </div>
                   ) : (
-                    <img src={ZeissLogo} alt="ChatGPT" />
+                    <div style={{ display: 'block' }}>
+                      <img src={ZeissLogo} alt="ChatGPT" />
+                      <div
+                        title="regenerate request"
+                        className="refresh-request"
+                        onClick={async () => {
+                          if (window.localStorage.getItem('lastRequest') !== '') {
+                            setIsResponseLoading(true)
+                            const return_msg = await AxiosRequestHandler(
+                              window.localStorage.getItem('lastRequest'),
+                              'openai_request'
+                            )
+                            setMessage(return_msg.data.message)
+                            setIsResponseLoading(false)
+                          }
+                        }}
+                      >
+                        <RxReload />
+                      </div>
+                    </div>
                   )}
                   {isUser ? (
                     <div>
@@ -201,7 +227,7 @@ function App(): JSX.Element {
                   ) : (
                     <div>
                       <p className="role-title">{gptVersion}</p>
-                      <p>{chatMsg.content}</p>
+                      <p className="gpt-response">{chatMsg.content}</p>
                     </div>
                   )}
                 </li>
@@ -216,7 +242,9 @@ function App(): JSX.Element {
               placeholder="Send a message."
               spellCheck="false"
               value={isResponseLoading ? 'Processing...' : text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value)
+              }}
               readOnly={isResponseLoading}
             />
             {!isResponseLoading && (
@@ -225,12 +253,15 @@ function App(): JSX.Element {
               </button>
             )}
           </form>
-          <p>This clone does not actually represent the full functionality of ChatGpt.</p>
         </div>
       </section>
     </div>
   )
 
+  /**
+   *
+   * @returns
+   */
   function ChooseGptVersionPopup(): JSX.Element {
     return (
       <div className="popup-container">

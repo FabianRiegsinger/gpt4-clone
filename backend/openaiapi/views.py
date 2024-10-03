@@ -26,8 +26,8 @@ from rest_framework import status
 
 from openai import AzureOpenAI
 
-GPT4o_API_KEY = "" #os.getenv("GPT4o_API_KEY")
-GPT4o_DEPLOYMENT_ENDPOINT = "" #os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
+GPT4o_API_KEY = "59334c6e31874e0393482b4e669dc3f3" #os.getenv("GPT4o_API_KEY")
+GPT4o_DEPLOYMENT_ENDPOINT = "https://zdp-x-cc-sdc-oai.openai.azure.com/" #os.
 #GPT4o_DEPLOYMENT_NAME = "gpt-4o" #os.getenv("GPT4o_DEPLOYMENT_NAME")
 
 class Gpt4Clone:
@@ -69,23 +69,21 @@ class Gpt4Clone:
         self.depl_endpnt = depl_endpnt
         self.depl_name = depl_name
         self.temperature = temperature
-        self.response = ''
 
-        self.client = AzureOpenAI(
+    def generate_response(self, message) -> str:
+        client = AzureOpenAI(
             azure_endpoint = self.depl_endpnt,
             api_key=self.api_key,
             api_version="2024-02-01"
         )
-        print("INFO: Initialization done!\n")
-
-    def generate_response(self, message) -> str:
         print("INFO: Generating response...")
-        self.response = self.client.chat.completions.create(
+        response = client.chat.completions.create(
             model=self.depl_name,
+            temperature=self.temperature,
             messages=[{"role": "user", "content": message}]
         )
         print("INFO: Response generated!")
-        return(self.response.choices[0].message.content)
+        return(response.choices[0].message.content)
 
     def set_deployment_name(self, new_name):
         print(f"INFO: Successfully set deployment name of model to: {new_name}")
@@ -113,7 +111,28 @@ def openai_request(request):
     fe_msg = request.data.get('data')
 
     if fe_msg:
-        gpt_response = gpt_instance.generate_response(fe_msg)
+        #gpt_response = gpt_instance.generate_response(fe_msg)
+        gpt_response = """
+Sure! Here's a simple "Hello, World!" program in Python:
+
+```python
+print("Hello, World!")
+```
+
+To run this program, you can save it in a file named `hello.py` and execute it with Python:
+
+```bash
+python hello.py
+```
+
+This will output:
+
+```
+Hello, World!
+```
+
+Feel free to ask if you have any further questions!
+        """
         # Process the string or save it
         return Response({"message": f"{gpt_response}"}, status=status.HTTP_200_OK)
     else:

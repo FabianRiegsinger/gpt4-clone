@@ -58,6 +58,20 @@ button {
   cursor: pointer;
 }
 
+.refresh-request {
+  display: flex;
+  width: 30px;
+  height: 30px;
+  border-radius: 0.3rem;
+  margin-top: 10px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.refresh-request:hover {
+  background-color: lightgray;
+}
+
 .sidebar {
   width: 16rem;
   padding: 1rem;
@@ -299,6 +313,11 @@ button {
 
 .form-container svg:hover {
   fill: #ececf1;
+}
+
+.gpt-response {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 @media screen and (min-width: 1280px) {

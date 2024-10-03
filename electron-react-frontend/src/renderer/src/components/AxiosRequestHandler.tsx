@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function AxiosRequestHandler(msg: string, api_key: string): Promise<string> {
+export async function AxiosRequestHandler(msg: string | null, api_key: string): Promise<string> {
   try {
     const response = await axios.post(`http://localhost:8000/api/${api_key}/`, {
       data: msg
