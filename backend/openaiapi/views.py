@@ -125,6 +125,8 @@ def set_temperature(request):
     input_string = request.data.get('data')
 
     if input_string:
+        gpt_instance.set_temperature(input_string)
+        print(f"INFO: Successfully set temperature of model to {input_string}")
         # Process the string or save it
         return Response({"message": f"Received: Temperature of model has been set successfully to: {input_string}"}, status=status.HTTP_200_OK)
     else:

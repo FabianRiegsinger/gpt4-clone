@@ -50,16 +50,16 @@ function App(): JSX.Element {
     setIsShowSidebar((prev) => !prev)
   }, [])
 
-  async function checkChangeInTemperature(msg: string): Promise<string> {
+  async function changeModelsTemperature(msg: string): Promise<string> {
     // Regex to match numbers
     const match = msg.match(/[-+]?[0-9]*\.?[0-9]+/)
     // Convert extracted number to floating point if possible. Otherwise, return null
     const temp_number = match ? match[0] : null
     if (temp_number) {
-      await AxiosRequestHandler(temp_number, 'set_temperature')
-      return `Temperature has been successfully set to ${temp_number}`
+      console.log(`Temperature set for ${gptVersion} to ${temp_number}`)
+      AxiosRequestHandler(temp_number, 'set_temperature')
     } else {
-      return 'Invalid input! Please try again'
+      console.log('Invalid input! Please try again')
     }
   }
 
@@ -72,8 +72,19 @@ function App(): JSX.Element {
     if (e.target[0].value === '') {
       return e.preventDefault()
     }
-    //checkChangeInTemperature(e.target[0].value)
-    //console.log(e.target[0].value)
+
+    // Check if parameter has been entered correctly by user
+    // TODO: Error not catched when user spells setModelsTemp slightly wrong.
+    if (e.target[0].value.substring(0, 13) === 'setModelsTemp' && e.target[0].value.length === 17) {
+      changeModelsTemperature(e.target[0].value)
+      return e.preventDefault()
+    } else if (
+      e.target[0].value.substring(0, 13) === 'setModelsTemp' &&
+      e.target[0].value.length !== 17
+    ) {
+      console.log('Invalid parameter to set temperature. Please try again!')
+      return e.preventDefault()
+    }
     //Axios to send and receive HTTP requests
     e.preventDefault()
 
@@ -155,7 +166,10 @@ function App(): JSX.Element {
             <img src={ZeissLogo} width={100} height={100} alt={gptVersion} />
             <h1>Chat {gptVersion} Clone</h1>
             <h3>Default temperature: {modelTemp}</h3>
-            <h3>In order to change model temperature type (i.e.): temp=0.1</h3>
+            <div style={{ display: 'flex' }}>
+              <h3>In order to change model temperature type (i.e.)</h3>{' '}
+              <p className="code">setModelsTemp=0.1</p>
+            </div>
             <h3>Valid range for setting the temperature: [0.1 ... 1.0]</h3>
           </div>
         )}

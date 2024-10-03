@@ -2,7 +2,7 @@
   font-weight: 600;
   padding: 3px 5px;
   border-radius: 2px;
-  background-color: var(--color-background-mute);
+  background-color: lightgray;
   font-family:
     ui-monospace,
     SFMono-Regular,
@@ -11,7 +11,7 @@
     Consolas,
     Liberation Mono,
     monospace;
-  font-size: 85%;
+  font-size: 1.0em;
 }
 
 * {
