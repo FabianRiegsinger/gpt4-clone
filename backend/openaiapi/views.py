@@ -93,9 +93,7 @@ class Gpt4Clone:
         self.temperature = new_temp
 
     def get_private_info(self):
-        """
-            Normally, this should be prohibited. Only done for debugging purposes.
-        """
+        """Normally, this should be prohibited. Only done for debugging purposes."""
         print(f"API_KEY: {self.api_key}, \
                 DEPLOYMENT_ENDPOINT: {self.depl_endpnt}, \
                 DEPLOYMENT_NAME: {self.depl_name}, \

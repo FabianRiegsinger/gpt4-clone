@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md'
-import { RxReload, RxCopy } from 'react-icons/rx'
+import { RxReload, RxCopy, RxCode } from 'react-icons/rx'
 
 import { AxiosRequestHandler } from './components/AxiosRequestHandler'
 import ZeissLogo from '../../../resources/zeiss-logo.png'
@@ -202,6 +202,7 @@ function App(): JSX.Element {
                       <img src={ZeissLogo} alt="ChatGPT" />
                       <RespawnUserRequest />
                       <CopyLastResponseToClipboard />
+                      <CopyCodeOfLastResponseToClipboard />
                     </div>
                   )}
                   {isUser ? (
@@ -245,6 +246,10 @@ function App(): JSX.Element {
     </div>
   )
 
+  /**
+   * Copyies the div's content to the users clipboard
+   * @returns void
+   */
   function CopyLastResponseToClipboard(): JSX.Element {
     return (
       <div
@@ -269,6 +274,45 @@ function App(): JSX.Element {
     )
   }
 
+  /**
+   * Copyies only the code of the div's content to the users clipboard
+   * @returns void
+   */
+  function CopyCodeOfLastResponseToClipboard(): JSX.Element {
+    return (
+      <div
+        title="copy only code to clipboard"
+        className="refresh-request"
+        id={'containerDiv'}
+        onClick={() => {
+          const content = document.getElementById('response')?.innerText
+          console.log(content)
+          // Regular expression to match content inside triple backticks
+          const codeBlocks = content.match(/```(\w+)([\s\S]*?)```/g)
+
+          // Join all found code blocks, or return an empty string if none found
+          const code = codeBlocks ? codeBlocks.join('\n') : ''
+          // Copy the text to the clipboard
+          navigator.clipboard
+            .writeText(code)
+            .then(() => {
+              alert('Code copied to clipboard!')
+            })
+            .catch((err) => {
+              console.error('Failed to copy text: ', err)
+            })
+        }}
+      >
+        <RxCode />
+      </div>
+    )
+  }
+
+  /**
+   * Uses the users last request and sends its back to the backend for another round
+   * Maybe this time the output is more useful.
+   * @returns void
+   */
   function RespawnUserRequest(): JSX.Element {
     return (
       <div
@@ -290,6 +334,7 @@ function App(): JSX.Element {
       </div>
     )
   }
+
   /**
    *
    * @returns

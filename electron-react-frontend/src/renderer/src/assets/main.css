@@ -278,17 +278,12 @@ button {
 .form-container {
   width: 60rem;
   padding: 0.3rem 1.6rem;
-  margin: 0 auto;
+  margin: 20px auto;
   border-radius: 2rem;
   display: flex;
   align-items: center;
   background-color: #96C9F4;
-  box-shadow:
-    rgb(0, 0, 0, 0.05) 0 3.3rem 3.4rem,
-    rgb(0, 0, 0, 0.05) 0 -0.7rem 1.8rem,
-    rgb(0, 0, 0, 0.05) 0 0.2rem 0.3rem,
-    rgb(0, 0, 0, 0.05) 0 0.7rem 0.2rem,
-    rgb(0, 0, 0, 0.05) 0 0.2rem 0.3rem;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
 }
 
 .form-container input {
