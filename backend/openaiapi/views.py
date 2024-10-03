@@ -26,8 +26,8 @@ from rest_framework import status
 
 from openai import AzureOpenAI
 
-GPT4o_API_KEY = "59334c6e31874e0393482b4e669dc3f3" #os.getenv("GPT4o_API_KEY")
-GPT4o_DEPLOYMENT_ENDPOINT = "https://zdp-x-cc-sdc-oai.openai.azure.com/" #os.
+GPT4o_API_KEY = "" #os.getenv("GPT4o_API_KEY")
+GPT4o_DEPLOYMENT_ENDPOINT = "" #os.
 #GPT4o_DEPLOYMENT_NAME = "gpt-4o" #os.getenv("GPT4o_DEPLOYMENT_NAME")
 
 class Gpt4Clone:
