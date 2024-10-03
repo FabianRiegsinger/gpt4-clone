@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from openaiapi.views import receive_string
+
 # import views from todo
 from openaiapi import views
 
@@ -36,5 +38,6 @@ urlpatterns = [
     # add another path to the url patterns
     # when you visit the localhost:8000/api
     # you should be routed to the django Rest framework
-    path('api/', include(router.urls))
+    path('api/', include(router.urls)),
+    path('api/openai_request/', receive_string, name='receive_string'),
 ]

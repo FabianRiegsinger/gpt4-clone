@@ -48,12 +48,27 @@ function App(): JSX.Element {
   const submitHandler = async (e) => {
     //console.log(e.target[0].value)
     //Axios to send and receive HTTP requests
-    setMessage(e.target[0].value)
-    axios
-      .get('http://localhost:8000/api/tasks/')
-      .then((res) => this.setState({ taskList: res.data }))
-      .catch((err) => console.log(err))
+    //setMessage(e.target[0].value)
     e.preventDefault()
+    try {
+      const response = await axios.post('http://localhost:8000/api/openai_request/', {
+        data: 'Das ist ein Test'
+      })
+
+      // Handle the response
+      console.log(response.data.message)
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 200 range
+        console.log(`Error: ${error.response.data.error}`)
+      } else if (error.request) {
+        // Request was made but no response received
+        console.log('Error: No response from server')
+      } else {
+        // Other errors
+        console.log(`Error: ${error.message}`)
+      }
+    }
     return setErrorText('My billing plan is gone because of many requests.')
     if (!text) return
 
