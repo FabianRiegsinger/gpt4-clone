@@ -30,7 +30,6 @@
     'Open Sans',
     'Helvetica Neue',
     sans-serif;
-  color: #ececf1;
 }
 
 ul {
@@ -47,7 +46,7 @@ button {
   height: 100vh;
   display: grid;
   grid-template-columns: 0fr 1fr;
-  background-color: #343541;
+  background-color: white;
 }
 
 .burger {
@@ -67,7 +66,7 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  background-color: rgb(32, 33, 35, 1);
+  background-color: #0C188D;
   overflow: auto;
   transition: all 0.3s ease;
 }
@@ -87,18 +86,16 @@ button {
   gap: 0.5rem;
   padding: 0.8rem 1rem;
   border-radius: 0.3rem;
-  border: 0.05rem solid rgba(255, 255, 255, 0.5);
   cursor: pointer;
 }
 
 .sidebar-header-button {
   cursor: pointer;
-  cursor: not-allowed;
+  color: white;
 }
 
 .sidebar-header:hover {
   background-color: #2b2c2f;
-  cursor: not-allowed;
 }
 
 .sidebar-history {
@@ -148,6 +145,7 @@ button {
   width: 100%;
   padding-top: 1rem;
   border-top: 0.05rem solid rgba(255, 255, 255, 0.5);
+  color: white;
 }
 
 .sidebar-info-upgrade,
@@ -206,11 +204,11 @@ button {
 }
 
 .main-header li:nth-child(odd) {
-  background-color: unset;
+  background-color: white;
 }
 
 .main-header li:nth-child(even) {
-  background-color: #444655;
+  background-color: #96C9F4;
 }
 
 .main-header img:not(:nth-child(even)) {
@@ -224,6 +222,7 @@ button {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: black;
 }
 
 .main-bottom {
@@ -239,7 +238,7 @@ button {
 .main-bottom p {
   font-size: 0.8rem;
   text-align: center;
-  color: #c3c3d1;
+  color: black;
 }
 
 .empty-chat-container {
@@ -269,7 +268,7 @@ button {
   border-radius: 2rem;
   display: flex;
   align-items: center;
-  background-color: #404150;
+  background-color: #96C9F4;
   box-shadow:
     rgb(0, 0, 0, 0.05) 0 3.3rem 3.4rem,
     rgb(0, 0, 0, 0.05) 0 -0.7rem 1.8rem,
@@ -283,17 +282,18 @@ button {
   height: 3rem;
   font-size: 1rem;
   padding-right: 1rem;
-  background-color: #404150;
+  background-color: #96C9F4;
+  color: black;
   outline: none;
   border: none;
 }
 
 .form-container input::placeholder {
-  color: #8e8fa1;
+  color: black;
 }
 
 .form-container svg {
-  fill: #8e8fa1;
+  fill: #000000;
   transform: rotate(-45deg);
 }
 

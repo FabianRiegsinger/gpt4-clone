@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
 import { BiPlus, BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md'
+import axios from 'axios'
 
 import ZeissLogo from '../../../resources/zeiss-logo.png'
 
@@ -20,7 +21,7 @@ function App(): JSX.Element {
   const [isShowSidebar, setIsShowSidebar] = useState(false)
   const scrollToLastItem = useRef(null)
 
-  const createNewChat = (): void => {
+  const deleteChatContent = (): void => {
     setMessage(null)
     setText('')
     setCurrentTitle(null)
@@ -32,12 +33,12 @@ function App(): JSX.Element {
     setText('')
   }*/
 
-  const chooseVersion1 = (): any => {
-    setGptVersion('GPT 4o')
+  const chooseGpt4o = (): any => {
+    setGptVersion('gpt-4o')
   }
 
-  const chooseVersion2 = (): any => {
-    setGptVersion('GPT 4o mini')
+  const chooseGpt4Mini = (): any => {
+    setGptVersion('gpt-4o-mini')
   }
 
   const toggleSidebar = useCallback(() => {
@@ -46,6 +47,12 @@ function App(): JSX.Element {
 
   const submitHandler = async (e) => {
     //console.log(e.target[0].value)
+    //Axios to send and receive HTTP requests
+    setMessage(e.target[0].value)
+    axios
+      .get('http://localhost:8000/api/tasks/')
+      .then((res) => this.setState({ taskList: res.data }))
+      .catch((err) => console.log(err))
     e.preventDefault()
     return setErrorText('My billing plan is gone because of many requests.')
     if (!text) return
@@ -113,13 +120,12 @@ function App(): JSX.Element {
     }
   }, [])
 
-  useEffect(() => {
-    const storedChats = localStorage.getItem('previousChats')
-
-    if (storedChats) {
-      setLocalChats(JSON.parse(storedChats))
-    }
-  }, [])
+  //useEffect(() => {
+  //  const storedChats = localStorage.getItem('previousChats')
+  //  if (storedChats) {
+  //    setLocalChats(JSON.parse(storedChats))
+  //  }
+  //}, [])
 
   useEffect(() => {
     if (!currentTitle && text && message) {
@@ -139,11 +145,11 @@ function App(): JSX.Element {
         content: message.content
       }
 
-      setPreviousChats((prevChats) => [...prevChats, newChat, responseMessage])
+      //setPreviousChats((prevChats) => [...prevChats, newChat, responseMessage])
       setLocalChats((prevChats) => [...prevChats, newChat, responseMessage])
 
-      const updatedChats = [...localChats, newChat, responseMessage]
-      localStorage.setItem('previousChats', JSON.stringify(updatedChats))
+      //const updatedChats = [...localChats, newChat, responseMessage]
+      //localStorage.setItem('previousChats', JSON.stringify(updatedChats))
     }
   }, [message, currentTitle])
 
@@ -166,9 +172,8 @@ function App(): JSX.Element {
           User needs to choose between two gpt versions */}
       {gptVersion == '' && <ChooseGptVersion />}
       <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
-        <div className="sidebar-header" onClick={createNewChat} role="button">
-          <BiPlus size={20} />
-          <button className="sidebar-header-button">New Chat</button>
+        <div className="sidebar-header" onClick={deleteChatContent} role="button">
+          <button className="sidebar-header-button">Empty Chat</button>
         </div>
         {/*<div className="sidebar-history">
             {uniqueTitles.length > 0 && previousChats.length !== 0 && (
@@ -229,7 +234,7 @@ function App(): JSX.Element {
       <section className="main">
         {!currentTitle && (
           <div className="empty-chat-container">
-            <img src={ZeissLogo} width={45} height={45} alt="ChatGPT" />
+            <img src={ZeissLogo} width={100} height={100} alt="ChatGPT" />
             <h1>Chat {gptVersion} Clone</h1>
           </div>
         )}
@@ -296,10 +301,10 @@ function App(): JSX.Element {
       <div className="popup-container">
         <div className="popup-window">
           <p className="popup-p">Choose GPT Version</p>
-          <button className="popup-button" onClick={chooseVersion1}>
+          <button className="popup-button" onClick={chooseGpt4o}>
             GPT 4o
           </button>
-          <button className="popup-button" onClick={chooseVersion2}>
+          <button className="popup-button" onClick={chooseGpt4Mini}>
             GPT 4o mini
           </button>
         </div>
@@ -317,7 +322,7 @@ function App(): JSX.Element {
     return (
       <>
         <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
-          <div className="sidebar-header" onClick={createNewChat} role="button">
+          <div className="sidebar-header" onClick={deleteChatContent} role="button">
             <BiPlus size={20} />
             <button className="sidebar-header-button">New Chat</button>
           </div>

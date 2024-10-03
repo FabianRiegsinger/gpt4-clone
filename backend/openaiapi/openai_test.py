@@ -11,7 +11,7 @@ client = AzureOpenAI(
 
 )
 response = client.chat.completions.create(
-    model="gpt-4o", # model = "deployment_name".
+    model=GPT4o_DEPLOYMENT_NAME, # model = "deployment_name".
     messages=[
         #{"role": "system", "content": "You are a helpful assistant."},
         #{"role": "user", "content": "Does Azure OpenAI support customer managed keys?"},
