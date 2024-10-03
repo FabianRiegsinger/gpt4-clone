@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
-import { BiPlus, BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
+import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md'
-import axios from 'axios'
+//import axios from 'axios'
+
+import { AxiosRequestHandler } from './components/AxiosRequestHandler'
 
 import ZeissLogo from '../../../resources/zeiss-logo.png'
 
@@ -35,10 +37,12 @@ function App(): JSX.Element {
   }*/
 
   const chooseGpt4o = (): any => {
+    AxiosRequestHandler('gpt-4o', 'set_model')
     setGptVersion('gpt-4o')
   }
 
   const chooseGpt4Mini = (): any => {
+    AxiosRequestHandler('gpt-4o-mini', 'set_model')
     setGptVersion('gpt-4o-mini')
   }
 
@@ -46,34 +50,16 @@ function App(): JSX.Element {
     setIsShowSidebar((prev) => !prev)
   }, [])
 
-  const checkChangeInTemperature = async (msg: string): any => {
+  async function checkChangeInTemperature(msg: string): Promise<string> {
     // Regex to match numbers
     const match = msg.match(/[-+]?[0-9]*\.?[0-9]+/)
     // Convert extracted number to floating point if possible. Otherwise, return null
-    const temp_number = match ? parseFloat(match[0]) : null
+    const temp_number = match ? match[0] : null
     if (temp_number) {
-      // Send request to backend to change temperature of model
-      try {
-        await axios.post('http://localhost:8000/api/set_temperature/', {
-          data: temp_number
-        })
-        setMessage(`Sucessfully changed temperature of model ${gptVersion} to ${temp_number}`)
-      } catch (error) {
-        if (error.response) {
-          // Server responded with a status other than 200 range
-          console.log(`Error: ${error.response.data.error}`)
-        } else if (error.request) {
-          // Request was made but no response received
-          console.log('Error: No response from server')
-        } else {
-          // Other errors
-          console.log(`Error: ${error.message}`)
-        }
-      }
+      await AxiosRequestHandler(temp_number, 'set_temperature')
+      return `Temperature has been successfully set to ${temp_number}`
     } else {
-      console.log('not a number')
-      setMessage('Invalid input! Please try again')
-      return
+      return 'Invalid input! Please try again'
     }
   }
 
@@ -91,79 +77,13 @@ function App(): JSX.Element {
     //Axios to send and receive HTTP requests
     e.preventDefault()
 
-    try {
-      const response = await axios.post('http://localhost:8000/api/openai_request/', {
-        data: e.target[0].value
-      })
-
-      // Handle the response
-      console.log(response.data.message)
-      // Empty input field
-      //setText('')
-      setMessage(response.data.message)
-    } catch (error) {
-      if (error.response) {
-        // Server responded with a status other than 200 range
-        console.log(`Error: ${error.response.data.error}`)
-      } else if (error.request) {
-        // Request was made but no response received
-        console.log('Error: No response from server')
-      } else {
-        // Other errors
-        console.log(`Error: ${error.message}`)
-      }
-    }
-    return setErrorText('error')
-    if (!text) return
-
     setIsResponseLoading(true)
-    setErrorText('')
+    const return_msg = await AxiosRequestHandler(e.target[0].value, 'openai_request')
 
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: import.meta.env.VITE_AUTH_TOKEN
-      },
-      body: JSON.stringify({
-        message: text
-      })
-    }
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/completions`, options)
-
-      if (response.status === 429) {
-        return setErrorText('Too many requests, please try again later.')
-      }
-
-      const data = await response.json()
-
-      if (data.error) {
-        setErrorText(data.error.message)
-        setText('')
-      } else {
-        setErrorText(false)
-      }
-
-      if (!data.error) {
-        setErrorText('')
-        setMessage(data.choices[0].message)
-        setTimeout(() => {
-          scrollToLastItem.current?.lastElementChild?.scrollIntoView({
-            behavior: 'smooth'
-          })
-        }, 1)
-        setTimeout(() => {
-          setText('')
-        }, 2)
-      }
-    } catch (e) {
-      setErrorText(e.message)
-      console.error(e)
-    } finally {
-      setIsResponseLoading(false)
-    }
+    setMessage(return_msg.data.message)
+    setIsResponseLoading(false)
+    //return setErrorText('error')
+    return
   }
 
   useLayoutEffect(() => {
@@ -178,13 +98,6 @@ function App(): JSX.Element {
       window.removeEventListener('resize', handleResize)
     }
   }, [])
-
-  //useEffect(() => {
-  //  const storedChats = localStorage.getItem('previousChats')
-  //  if (storedChats) {
-  //    setLocalChats(JSON.parse(storedChats))
-  //  }
-  //}, [])
 
   useEffect(() => {
     if (!currentTitle && text && message) {
@@ -216,69 +129,15 @@ function App(): JSX.Element {
     (prevChat) => prevChat.title === currentTitle
   )
 
-  /*const uniqueTitles = Array.from(
-    new Set(previousChats.map((prevChat) => prevChat.title).reverse())
-  )*/
-
-  /*const localUniqueTitles = Array.from(
-    new Set(localChats.map((prevChat) => prevChat.title).reverse())
-  ).filter((title) => !uniqueTitles.includes(title))
-  */
-
   return (
     <div className="container">
       {/* This only shows the first time the app gets called.
           User needs to choose between two gpt versions */}
-      {gptVersion == '' && <ChooseGptVersion />}
+      {gptVersion == '' && <ChooseGptVersionPopup />}
       <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
         <div className="sidebar-header" onClick={deleteChatContent} role="button">
           <button className="sidebar-header-button">Empty Chat</button>
         </div>
-        {/*<div className="sidebar-history">
-            {uniqueTitles.length > 0 && previousChats.length !== 0 && (
-              <>
-                <p>Ongoing</p>
-                <ul>
-                  {uniqueTitles?.map((uniqueTitle, idx) => {
-                    const listItems = document.querySelectorAll('li')
-
-                    listItems.forEach((item) => {
-                      if (item.scrollWidth > item.clientWidth) {
-                        item.classList.add('li-overflow-shadow')
-                      }
-                    })
-                    return (
-                      <li key={idx} onClick={() => backToHistoryPrompt(uniqueTitle)}>
-                        {uniqueTitle}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </>
-            )}
-            {localUniqueTitles.length > 0 && localChats.length !== 0 && (
-              <>
-                <p>Previous</p>
-                <ul>
-                  {localUniqueTitles?.map((uniqueTitle, idx) => {
-                    const listItems = document.querySelectorAll('li')
-
-                    listItems.forEach((item) => {
-                      if (item.scrollWidth > item.clientWidth) {
-                        item.classList.add('li-overflow-shadow')
-                      }
-                    })
-
-                    return (
-                      <li key={idx} onClick={() => backToHistoryPrompt(uniqueTitle)}>
-                        {uniqueTitle}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </>
-            )}
-          </div>*/}
         <div className="sidebar-info">
           <div className="sidebar-info-upgrade">
             <BiUser size={20} />
@@ -358,7 +217,7 @@ function App(): JSX.Element {
     </div>
   )
 
-  function ChooseGptVersion(): JSX.Element {
+  function ChooseGptVersionPopup(): JSX.Element {
     return (
       <div className="popup-container">
         <div className="popup-window">
@@ -371,157 +230,6 @@ function App(): JSX.Element {
           </button>
         </div>
       </div>
-    )
-  }
-
-  /**
-   * SideBarNotUsable
-   * Method returns html code for the main windows sidebar
-   * Currently, no functional code implemented.
-   * @returns JSX.Element
-   */
-  function SideBarNotUsable(): JSX.Element {
-    return (
-      <>
-        <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
-          <div className="sidebar-header" onClick={deleteChatContent} role="button">
-            <BiPlus size={20} />
-            <button className="sidebar-header-button">New Chat</button>
-          </div>
-          {/*<div className="sidebar-history">
-            {uniqueTitles.length > 0 && previousChats.length !== 0 && (
-              <>
-                <p>Ongoing</p>
-                <ul>
-                  {uniqueTitles?.map((uniqueTitle, idx) => {
-                    const listItems = document.querySelectorAll('li')
-
-                    listItems.forEach((item) => {
-                      if (item.scrollWidth > item.clientWidth) {
-                        item.classList.add('li-overflow-shadow')
-                      }
-                    })
-                    return (
-                      <li key={idx} onClick={() => backToHistoryPrompt(uniqueTitle)}>
-                        {uniqueTitle}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </>
-            )}
-            {localUniqueTitles.length > 0 && localChats.length !== 0 && (
-              <>
-                <p>Previous</p>
-                <ul>
-                  {localUniqueTitles?.map((uniqueTitle, idx) => {
-                    const listItems = document.querySelectorAll('li')
-
-                    listItems.forEach((item) => {
-                      if (item.scrollWidth > item.clientWidth) {
-                        item.classList.add('li-overflow-shadow')
-                      }
-                    })
-
-                    return (
-                      <li key={idx} onClick={() => backToHistoryPrompt(uniqueTitle)}>
-                        {uniqueTitle}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </>
-            )}
-          </div>*/}
-          <div className="sidebar-info">
-            <div className="sidebar-info-upgrade">
-              <BiUser size={20} />
-              <p>Upgrade plan</p>
-            </div>
-            <div className="sidebar-info-user">
-              <BiSolidUserCircle size={20} />
-              <p>User</p>
-            </div>
-          </div>
-        </section>
-      </>
-    )
-  }
-
-  /**
-   * MainChatWindow
-   * Method returns code to be able to interact with ChatGPT API
-   * Text field to send message to API and a field to display
-   * it's response.
-   * @returns JSX.Element
-   */
-  function MainChatWindow(): JSX.Element {
-    return (
-      <>
-        <section className="main">
-          {!currentTitle && (
-            <div className="empty-chat-container">
-              <img src={ZeissLogo} width={45} height={45} alt="ChatGPT" />
-              <h1>Chat GPT 4o (mini) Clone</h1>
-              <h3>How can I help you today?</h3>
-            </div>
-          )}
-
-          {isShowSidebar ? (
-            <MdOutlineArrowRight className="burger" size={28.8} onClick={toggleSidebar} />
-          ) : (
-            <MdOutlineArrowLeft className="burger" size={28.8} onClick={toggleSidebar} />
-          )}
-          <div className="main-header">
-            <ul>
-              {currentChat?.map((chatMsg, idx) => {
-                const isUser = chatMsg.role === 'user'
-
-                return (
-                  <li key={idx} ref={scrollToLastItem}>
-                    {isUser ? (
-                      <div>
-                        <BiSolidUserCircle size={28.8} />
-                      </div>
-                    ) : (
-                      <img src={ZeissLogo} alt="ChatGPT" />
-                    )}
-                    {isUser ? (
-                      <div>
-                        <p className="role-title">You</p>
-                        <p>{chatMsg.content}</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="role-title">ChatGPT</p>
-                        <p>{chatMsg.content}</p>
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-          <div className="main-bottom">
-            <form className="form-container" onSubmit={submitHandler}>
-              <input
-                type="text"
-                placeholder="Send a message."
-                spellCheck="false"
-                value={isResponseLoading ? 'Processing...' : text}
-                onChange={(e) => setText(e.target.value)}
-                readOnly={isResponseLoading}
-              />
-              {!isResponseLoading && (
-                <button type="submit">
-                  <BiSend size={20} />
-                </button>
-              )}
-            </form>
-            <p>This clone does not actually represent the full functionality of ChatGpt.</p>
-          </div>
-        </section>
-      </>
     )
   }
 }

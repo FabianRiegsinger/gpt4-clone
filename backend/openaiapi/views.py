@@ -15,6 +15,7 @@
 #    # assign it to the OpenAiApi class
 #    serializer_class = OpenAiApi
 
+
 #    # define a variable and populate it
 #    # with the OpenAiApi list objects
 #    queryset = OpenAiApi.objects.all()
@@ -27,7 +28,7 @@ from openai import AzureOpenAI
 
 GPT4o_API_KEY = "" #os.getenv("GPT4o_API_KEY")
 GPT4o_DEPLOYMENT_ENDPOINT = "" #os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
-GPT4o_DEPLOYMENT_NAME = "gpt-4o"#os.getenv("GPT4o_DEPLOYMENT_NAME")
+#GPT4o_DEPLOYMENT_NAME = "gpt-4o" #os.getenv("GPT4o_DEPLOYMENT_NAME")
 
 class Gpt4Clone:
     """
@@ -47,14 +48,23 @@ class Gpt4Clone:
 
     Methods
     -------
-    display_info():
-        Prints the car's details.
+    __init__():
+        initialises varialbes which are necessary for the gpt api to work.
 
-    update_year(new_year):
-        Updates the year of the car.
+    set_deployment_name():
+        setter method to define which model to use. Possible options: gpt-4o and gpt-4o-mini.
+
+    set_temperature():
+        sets temperature of model between 0.1 and 1.0. Lower value makes output more deterministic and focused.
+
+    get_private_info():
+        returns member variables. Normally, considered unsafe. Remove in production code.
+
+    generate_response(new_year):
+        uses request from react frontend to generate a response via openAi's chat gpt api.
     """
     def __init__(self, api_key='secret', depl_endpnt='also_secret', depl_name='gpt-4o', temperature=1.0):
-        print("INFO: Initializing GPT4o-CLONE...")
+        print(f"INFO: Initializing {depl_name} CLONE...")
         self.api_key = api_key
         self.depl_endpnt = depl_endpnt
         self.depl_name = depl_name
@@ -78,6 +88,7 @@ class Gpt4Clone:
         return(self.response.choices[0].message.content)
 
     def set_deployment_name(self, new_name):
+        print(f"INFO: Successfully set deployment name of model to: {new_name}")
         self.depl_name = new_name
 
     def set_temperature(self, new_temp):
@@ -85,7 +96,7 @@ class Gpt4Clone:
 
     def get_private_info(self):
         """
-            Normally, this should be prohibited. Only done for debugging purposes
+            Normally, this should be prohibited. Only done for debugging purposes.
         """
         print(f"API_KEY: {self.api_key}, \
                 DEPLOYMENT_ENDPOINT: {self.depl_endpnt}, \
@@ -93,7 +104,8 @@ class Gpt4Clone:
                 TEMPERATURE OF RESP: {self.temperature}")
 
 # Init GptClone class so that the responses may be generated as soon as the frontend requests one.
-gptcl = Gpt4Clone(GPT4o_API_KEY, GPT4o_DEPLOYMENT_ENDPOINT, GPT4o_DEPLOYMENT_NAME)
+#TODO: Do not use global instantiation
+gpt_instance = Gpt4Clone(GPT4o_API_KEY, GPT4o_DEPLOYMENT_ENDPOINT)
 
 @api_view(['POST'])
 def openai_request(request):
@@ -101,7 +113,7 @@ def openai_request(request):
     fe_msg = request.data.get('data')
 
     if fe_msg:
-        gpt_response = gptcl.generate_response(fe_msg)
+        gpt_response = gpt_instance.generate_response(fe_msg)
         # Process the string or save it
         return Response({"message": f"{gpt_response}"}, status=status.HTTP_200_OK)
     else:
@@ -116,5 +128,18 @@ def set_temperature(request):
         # Process the string or save it
         return Response({"message": f"Received: Temperature of model has been set successfully to: {input_string}"}, status=status.HTTP_200_OK)
     else:
-        return Response({"error": "Something went wrong while trying to set the temperature of the model. Debugging \
+        return Response({"error": "Something went wrong while trying to read the desired temperature of the model. Debugging \
+                                   the django backend may be needed."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def set_model(request):
+    # Get the string from the request data
+    deployment_name = request.data.get('data')
+
+    if deployment_name:
+        gpt_instance.set_deployment_name(deployment_name)
+        return Response({"message": f"Set model name to: {deployment_name}"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Something went wrong while trying to read the models deployment name. Debugging \
                                    the django backend may be needed."}, status=status.HTTP_400_BAD_REQUEST)

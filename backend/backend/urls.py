@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from openaiapi.views import openai_request, set_temperature
+from openaiapi.views import openai_request, set_temperature, set_model
 
 # import views from todo
 from openaiapi import views
@@ -41,4 +41,5 @@ urlpatterns = [
     #path('api/', include(router.urls)),
     path('api/openai_request/', openai_request, name='openai_request'),
     path('api/set_temperature/', set_temperature, name='set_temperature'),
+    path('api/set_model/', set_model, name='set_model'),
 ]
