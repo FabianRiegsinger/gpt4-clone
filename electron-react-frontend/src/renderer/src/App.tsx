@@ -1,14 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
-import { MdOutlineArrowLeft, MdOutlineArrowRight } from 'react-icons/md'
 import { RxReload, RxCopy, RxCode } from 'react-icons/rx'
 
 import { AxiosRequestHandler } from './components/AxiosRequestHandler'
 import ZeissLogo from '../../../resources/zeiss-logo.png'
 
 /**
- * Parent APP
- * @returns all the code
+ * @function App
+ * @param {empty}
+ * @returns {ReactNode} Renders entire app code
  */
 function App(): JSX.Element {
   const [text, setText] = useState('')
@@ -19,12 +19,12 @@ function App(): JSX.Element {
   const [localChats, setLocalChats] = useState([])
   const [currentTitle, setCurrentTitle] = useState('') // was null before
   const [isResponseLoading, setIsResponseLoading] = useState(false)
-  //const [errorText, setErrorText] = useState('')
-  const [isShowSidebar, setIsShowSidebar] = useState(false)
   const scrollToLastItem = useRef(null)
 
   /**
-   * Deletes content of chat window. Basically resets everything
+   * @function deleteChatContent
+   * @param {empty}
+   * @return {empty} Deletes content of chat window. Basically resets everything
    */
   const deleteChatContent = (): void => {
     setMessage('')
@@ -34,8 +34,10 @@ function App(): JSX.Element {
   }
 
   /**
-   * function which gets called when gpt-4o button got pressed at the beginning
-   * Uses Rest API to set gpt model type to gpt-4o
+   * @function chooseGpt4o
+   * @param {empty}
+   * @return {empty} function which gets called when gpt-4o button got pressed at the beginning.
+   *                 Uses Rest API to set gpt model type to gpt-4o.
    */
   const chooseGpt4o = (): any => {
     AxiosRequestHandler('gpt-4o', 'set_model')
@@ -43,8 +45,10 @@ function App(): JSX.Element {
   }
 
   /**
-   * function which gets called when gpt-4o button got pressed at the beginning
-   * Uses Rest API to set gpt model type to gpt-4o-mini
+   * @function chooseGpt4Mini
+   * @param {empty}
+   * @return {empty} Function which gets called when gpt-4o button got pressed at the beginning.
+   *                 Uses Rest API to set gpt model type to gpt-4o-mini
    */
   const chooseGpt4Mini = (): any => {
     AxiosRequestHandler('gpt-4o-mini', 'set_model')
@@ -52,16 +56,10 @@ function App(): JSX.Element {
   }
 
   /**
-   * Just a toggle to show or hide the sidebar
-   */
-  const toggleSidebar = useCallback(() => {
-    setIsShowSidebar((prev) => !prev)
-  }, [])
-
-  /**
-   * Asynchronous function which checks if the users input is correct and uses the
-   * REST API to set the models temperature to the users desired value.
-   * @param msg Should look like setModelsTemp=0.2
+   * @function changeModelsTemperature
+   * @param {string} msg Specific message for changing the temperature of the model (i.e. setModelsTemp=0.2)
+   * @return {empty} Asynchronous function which checks if the users input is correct and uses the
+   *                 REST API to set the models temperature to the users desired value.
    */
   async function changeModelsTemperature(msg: string): Promise<string> {
     // Regex to match numbers
@@ -77,15 +75,16 @@ function App(): JSX.Element {
   }
 
   /**
-   * Main entry point for the users request.
-   * First check if request is empty. If so, cancel further process.
-   * Secondly: Check if string is only known configuration string to configure model temperature.
-   * @param e event variable
-   * @returns nothing
+   * @function submitHandler
+   * @param {any} e event type
+   * @return {empty} Main entry point for the users request.
+   *                 First check if request is empty. If so, cancel further process.
+   *                 Secondly: Check if string is only known configuration string to configure model temperature.
    */
   const submitHandler = async (e) => {
-    // safe text from input field in variable
+    // safe text from input field in browser storage
     window.localStorage.setItem('lastRequest', e.target[0].value)
+
     // Check if request empty
     if (e.target[0].value === '') {
       return e.preventDefault()
@@ -103,15 +102,21 @@ function App(): JSX.Element {
       console.log('Invalid parameter to set temperature. Please try again!')
       return e.preventDefault()
     }
+
     //Axios to send and receive HTTP requests
     e.preventDefault()
 
+    // Trigger loading/processing text in input field
     setIsResponseLoading(true)
+
+    // Send request to openai api
     const return_msg = await AxiosRequestHandler(e.target[0].value, 'openai_request')
+
+    // display message to user
     setMessage(return_msg.data.message)
+
+    // Stop loading/processing text in input field
     setIsResponseLoading(false)
-    //return setErrorText('error')
-    return
   }
 
   // Invoke useEffect hook when dependencies change aka message and/or currentTitle
@@ -149,43 +154,12 @@ function App(): JSX.Element {
   // Returns UI of entire app
   return (
     <div className="container">
-      {/* This only shows the first time the app gets called.
-          User needs to choose between two gpt versions */}
+      {/* Only shown once at startup to let user choose between gpt versions*/}
       {gptVersion == '' && <ChooseGptVersionPopup />}
-      <section className={`sidebar ${isShowSidebar ? 'open' : ''}`}>
-        <div className="sidebar-header" onClick={deleteChatContent} role="button">
-          <button className="sidebar-header-button">Empty Chat</button>
-        </div>
-        <div className="sidebar-info">
-          <div className="sidebar-info-upgrade">
-            <BiUser size={20} />
-            <p>Upgrade plan</p>
-          </div>
-          <div className="sidebar-info-user">
-            <BiSolidUserCircle size={20} />
-            <p>User</p>
-          </div>
-        </div>
-      </section>
+      {/* Sidebar content */}
+      <SideBar />
       <section className="main">
-        {!currentTitle && (
-          <div className="empty-chat-container">
-            <img src={ZeissLogo} width={100} height={100} alt={gptVersion} />
-            <h1>Chat {gptVersion} Clone</h1>
-            <h3>Default temperature: {modelTemp}</h3>
-            <div style={{ display: 'flex' }}>
-              <h3>In order to change model temperature type (i.e.)</h3>{' '}
-              <p className="code">setModelsTemp=0.1</p>
-            </div>
-            <h3>Valid range for setting the temperature: [0.1 ... 1.0]</h3>
-          </div>
-        )}
-
-        {isShowSidebar ? (
-          <MdOutlineArrowRight className="burger" size={28.8} onClick={toggleSidebar} />
-        ) : (
-          <MdOutlineArrowLeft className="burger" size={28.8} onClick={toggleSidebar} />
-        )}
+        <EmptyChatInfo />
         <div className="main-header">
           <ul>
             {currentChat?.map((chatMsg, idx) => {
@@ -212,7 +186,10 @@ function App(): JSX.Element {
                     </div>
                   ) : (
                     <div>
-                      <p className="role-title">{gptVersion}</p>
+                      <p className="role-title">
+                        {gptVersion}: Unclear from task if answer should always or on demand be
+                        printed in markdown format
+                      </p>
                       <div id="response">
                         <p className="gpt-response">{chatMsg.content}</p>
                       </div>
@@ -247,13 +224,15 @@ function App(): JSX.Element {
   )
 
   /**
-   * Copyies the div's content to the users clipboard
-   * @returns void
+   * @function CopyLastResponseToClipboard
+   * @param {empty}
+   * @returns {ReactNode} Renders a button in the chat response window so that the user may copy
+   *                      the div's entire content to the users clipboard
    */
   function CopyLastResponseToClipboard(): JSX.Element {
     return (
       <div
-        title="copy to clipboard"
+        title="copy entire response to clipboard"
         className="refresh-request"
         id={'containerDiv'}
         onClick={() => {
@@ -275,8 +254,10 @@ function App(): JSX.Element {
   }
 
   /**
-   * Copyies only the code of the div's content to the users clipboard
-   * @returns void
+   * @function CopyCodeOfLastResponseToClipboard
+   * @param {empty}
+   * @returns {ReactNode} Renders a button in the chat response window so that the user may copy
+   *                      only the code of the div's content to the users clipboard
    */
   function CopyCodeOfLastResponseToClipboard(): JSX.Element {
     return (
@@ -285,16 +266,22 @@ function App(): JSX.Element {
         className="refresh-request"
         id={'containerDiv'}
         onClick={() => {
+          //TODO: This approach does not work for every case. Find better solution
+          // Get response of chat bot of div with id 'response'
           const content = document.getElementById('response')?.innerText
-          console.log(content)
+
           // Regular expression to match content inside triple backticks
           const codeBlocks = content.match(/```(\w+)([\s\S]*?)```/g)
 
           // Join all found code blocks, or return an empty string if none found
           const code = codeBlocks ? codeBlocks.join('\n') : ''
+
+          // Regex to match lines that start with three backticks
+          // Replace all lines that start with three backticks
+          const onlyCode = code.replace(/^```.*$/gm, '')
           // Copy the text to the clipboard
           navigator.clipboard
-            .writeText(code)
+            .writeText(onlyCode.replace(/^\s*[\r\n]+/gm, ''))
             .then(() => {
               alert('Code copied to clipboard!')
             })
@@ -309,9 +296,10 @@ function App(): JSX.Element {
   }
 
   /**
-   * Uses the users last request and sends its back to the backend for another round
-   * Maybe this time the output is more useful.
-   * @returns void
+   * @function RespawnUserRequest
+   * @param {empty}
+   * @returns {ReactNode} Renders a button in the chat response window so that the user may re-send
+   *                      the last request to the backend for recalculation
    */
   function RespawnUserRequest(): JSX.Element {
     return (
@@ -336,14 +324,15 @@ function App(): JSX.Element {
   }
 
   /**
-   *
-   * @returns
+   * @function ChooseGptVersionPopup
+   * @param {empty}
+   * @returns {ReactNode} Renders popup at app startup to let the user choose between two gpt verrsions
    */
   function ChooseGptVersionPopup(): JSX.Element {
     return (
       <div className="popup-container">
         <div className="popup-window">
-          <p className="popup-p">Choose GPT Version</p>
+          <p className="popup-p">Choose GPT Version:</p>
           <button className="popup-button" onClick={chooseGpt4o}>
             GPT 4o
           </button>
@@ -352,6 +341,55 @@ function App(): JSX.Element {
           </button>
         </div>
       </div>
+    )
+  }
+
+  /**
+   * @function SideBar
+   * @param {empty}
+   * @returns {ReactNode} Renders sidebar content
+   */
+  function SideBar(): JSX.Element {
+    return (
+      <section className={'sidebar'}>
+        <div className="sidebar-header" onClick={deleteChatContent} role="button">
+          <button className="sidebar-header-button">Empty Chat</button>
+        </div>
+        <div className="sidebar-info">
+          <div className="sidebar-info-upgrade">
+            <BiUser size={20} />
+            <p>Upgrade plan</p>
+          </div>
+          <div className="sidebar-info-user">
+            <BiSolidUserCircle size={20} />
+            <p>User</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  /**
+   * @function EmptyChatInfo
+   * @param {empty}
+   * @returns {ReactNode} React element which displays text on the chat window for further infomation
+   */
+  function EmptyChatInfo(): JSX.Element {
+    return (
+      <>
+        {!currentTitle && (
+          <div className="empty-chat-container">
+            <img src={ZeissLogo} width={100} height={100} alt={gptVersion} />
+            <h1>Chat {gptVersion} Clone</h1>
+            <h3>Default temperature: {modelTemp.toFixed(1)}</h3>
+            <div style={{ display: 'flex' }}>
+              <h3>In order to change model temperature, type (i.e.): </h3>{' '}
+              <p className="code">setModelsTemp=0.1</p>
+            </div>
+            <h3>Valid range for setting the temperature: [0.1 ... 1.0]</h3>
+          </div>
+        )}
+      </>
     )
   }
 }

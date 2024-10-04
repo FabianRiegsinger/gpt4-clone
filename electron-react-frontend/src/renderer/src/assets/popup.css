@@ -11,8 +11,8 @@
 
 .popup-window {
     width: 300px;
-    height: 180px;
-    background-color: rgb(220, 219, 219);
+    height: 150px;
+    background-color: #0C188D;
     border-radius: 15px;
     display: flex;
     align-items: end;
@@ -22,17 +22,22 @@
 
 .popup-p {
     position: absolute;
-    color: black;
-    line-height: 225px;
+    color: white;
+    line-height: 190px;
     font-size: 1.2em;
     z-index: 2;
 }
 
 .popup-button {
-    width: 100px;
+    width: 125px;
     height: 50px;
-    background-color: grey;
-    border-radius: 20px;
-    margin: 10px;
+    background-color: white;
+    border-radius: 16px;
+    margin: 5px;
+    font-size: 1.1em;
     z-index: 2;
+}
+
+.popup-button:hover {
+    background-color: lightskyblue;
 }
