@@ -39,7 +39,7 @@ class Gpt4Clone:
     generate_response(new_year):
         uses request from react frontend to generate a response via openAi's chat gpt api.
     """
-    def __init__(self, api_key='secret', depl_endpnt='also_secret', depl_name='gpt-4o', temperature=1.0):
+    def __init__(self, api_key='', depl_endpnt='', depl_name='gpt-4o', temperature=1.0):
         print(f"INFO: Initializing {depl_name} CLONE...")
         self.api_key = api_key
         self.depl_endpnt = depl_endpnt
@@ -55,7 +55,7 @@ class Gpt4Clone:
         print("INFO: Generating response...")
         response = client.chat.completions.create(
             model=self.depl_name,
-            temperature=self.temperature,
+            temperature=float(self.temperature),
             messages=[{"role": "user", "content": message}]
         )
         print("INFO: Response generated!")
@@ -110,7 +110,7 @@ def set_temperature(request):
     request : str
         Temperature value
     """
-    # Get the string from the request data
+    # Get the string from the request
     input_string = request.data.get('data')
 
     if input_string:
@@ -133,7 +133,7 @@ def set_model(request):
     request : str
         Model name as string
     """
-    # Get the string from the request data
+    # Get the string from the request
     deployment_name = request.data.get('data')
 
     if deployment_name:
