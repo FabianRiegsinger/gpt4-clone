@@ -15,30 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
 from openaiapi.views import openai_request, set_temperature, set_model
 
-# import views from todo
-from openaiapi import views
-
-# import routers from the REST framework
-# it is necessary for routing
-from rest_framework import routers
-
-# create a router object
-#router = routers.DefaultRouter()
-
-# register the router
-#router.register(r'tasks',views.OpenAiApiView, 'task')
+#TODO: Probably not using django as intended!!!
+#      More research on that needed!!!
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # add another path to the url patterns
-    # when you visit the localhost:8000/api
-    # you should be routed to the django Rest framework
-    #path('api/', include(router.urls)),
     path('api/openai_request/', openai_request, name='openai_request'),
     path('api/set_temperature/', set_temperature, name='set_temperature'),
     path('api/set_model/', set_model, name='set_model'),

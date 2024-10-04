@@ -1,25 +1,3 @@
-#from django.shortcuts import render
-
-# import view sets from the REST framework
-#from rest_framework import viewsets
-
-# import the OpenAiApi from the serializer file
-#from .serializers import OpenAiApi
-
-# import the OpenAiApi model from the models file
-#from .models import OpenAiApi
-
-# create a class for the OpenAiApi model viewsets
-#class OpenAiApiView(viewsets.ModelViewSet):
-#    # create a serializer class and
-#    # assign it to the OpenAiApi class
-#    serializer_class = OpenAiApi
-
-
-#    # define a variable and populate it
-#    # with the OpenAiApi list objects
-#    queryset = OpenAiApi.objects.all()
-
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,8 +5,7 @@ from rest_framework import status
 from openai import AzureOpenAI
 
 GPT4o_API_KEY = "" #os.getenv("GPT4o_API_KEY")
-GPT4o_DEPLOYMENT_ENDPOINT = "" #os.
-#GPT4o_DEPLOYMENT_NAME = "gpt-4o" #os.getenv("GPT4o_DEPLOYMENT_NAME")
+GPT4o_DEPLOYMENT_ENDPOINT = "" #os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
 
 class Gpt4Clone:
     """
