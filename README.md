@@ -1,6 +1,15 @@
 # Example Project: GPT-4o and GPT-4o-mini Clone
 
 ```
+NOTE: For this application to work an AzureOpenAI endpoint and an API key needs to be pasted at the right spot.
+
+In backend/openaiapi/views.py please provide necessary information in line 6 and 7!
+
+GPT4o_API_KEY = ""
+GPT4o_DEPLOYMENT_ENDPOINT = ""
+```
+
+```
 NOTE: If downloading files/software in your environment causes problems, often a (company) proxy hinders the communication.
 If this is the case, please refer to your IT Support
 ```

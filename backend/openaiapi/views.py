@@ -1,7 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-
 from openai import AzureOpenAI
 
 GPT4o_API_KEY = "" #os.getenv("GPT4o_API_KEY")
@@ -63,14 +62,15 @@ class Gpt4Clone:
         return(response.choices[0].message.content)
 
     def set_deployment_name(self, new_name):
-        print(f"INFO: Successfully set deployment name of model to: {new_name}")
+        """Setter method to set the classes private variable for the model version/name"""
         self.depl_name = new_name
 
     def set_temperature(self, new_temp):
+        """Setter method to set the classes private variable for the temperature"""
         self.temperature = new_temp
 
     def get_private_info(self):
-        """Normally, this should be prohibited. Only done for debugging purposes."""
+        """Normally, this should be prohibited. Only done here for debugging purposes."""
         print(f"API_KEY: {self.api_key}, \
                 DEPLOYMENT_ENDPOINT: {self.depl_endpnt}, \
                 DEPLOYMENT_NAME: {self.depl_name}, \
@@ -82,32 +82,19 @@ gpt_instance = Gpt4Clone(GPT4o_API_KEY, GPT4o_DEPLOYMENT_ENDPOINT)
 
 @api_view(['POST'])
 def openai_request(request):
+    """
+    API method to get user input from frontend to forward it to the OpenAI API
+
+    Parameters
+    ----------
+    request : str
+        Users input/request
+    """
     # Get the string from the request data
     fe_msg = request.data.get('data')
 
     if fe_msg:
-        #gpt_response = gpt_instance.generate_response(fe_msg)
-        gpt_response = """
-Sure! Here's a simple "Hello, World!" program in Python:
-
-```python
-print("Hello, World!")
-```
-
-To run this program, you can save it in a file named `hello.py` and execute it with Python:
-
-```bash
-python hello.py
-```
-
-This will output:
-
-```
-Hello, World!
-```
-
-Feel free to ask if you have any further questions!
-        """
+        gpt_response = gpt_instance.generate_response(fe_msg)
         # Process the string or save it
         return Response({"message": f"{gpt_response}"}, status=status.HTTP_200_OK)
     else:
@@ -115,6 +102,14 @@ Feel free to ask if you have any further questions!
 
 @api_view(['POST'])
 def set_temperature(request):
+    """
+    API method to set the temperature for the chosen model via the frontend
+
+    Parameters
+    ----------
+    request : str
+        Temperature value
+    """
     # Get the string from the request data
     input_string = request.data.get('data')
 
@@ -130,10 +125,19 @@ def set_temperature(request):
 
 @api_view(['POST'])
 def set_model(request):
+    """
+    API method to set model type via frontend
+
+    Parameters
+    ----------
+    request : str
+        Model name as string
+    """
     # Get the string from the request data
     deployment_name = request.data.get('data')
 
     if deployment_name:
+        # Set the deployment name in class Gpt4Clone
         gpt_instance.set_deployment_name(deployment_name)
         return Response({"message": f"Set model name to: {deployment_name}"}, status=status.HTTP_200_OK)
     else:
