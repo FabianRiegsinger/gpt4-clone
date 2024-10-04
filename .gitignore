@@ -11,3 +11,6 @@ electron-react-frontend/*.log*
 
 # Exclude any compiled files
 *.pyc
+
+# Exclude npm dependencies
+node_modules
