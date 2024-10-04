@@ -1,0 +1,16 @@
+services:
+  gpt4oclone:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    environment:
+      - DISPLAY=$DISPLAY
+      - WAYLAND_DISPLAY=x11
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+    hostname: devcon
+    volumes:
+      - ..:/workspace:cached
+      # enable graphical applications in devcontainer via wayland
+      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /run/desktop/mnt/host/wslg:/mnt/wslg
+    command: /bin/sh -c "while sleep 1000; do :; done"
