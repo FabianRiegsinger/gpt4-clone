@@ -3,17 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from openai import AzureOpenAI
 
+import requests
 import os
 import logging
+import json
 
+#TODO: Don't initialize logger globally
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-GPT4o_API_KEY = os.getenv("GPT4o_API_KEY")
-GPT4o_DEPLOYMENT_ENDPOINT = os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
-
-#TODO: Don't initialize logger globally
 
 class Gpt4Clone:
     """
@@ -47,11 +45,31 @@ class Gpt4Clone:
 
     generate_response(new_year):
         uses request from react frontend to generate a response via openAi's chat gpt api.
+
+    get_wethear(location):
+        tries to scaffold weather information about given location since gpt api does not have access to live data
     """
-    def __init__(self, api_key='', depl_endpnt='', depl_name='gpt-4o', temperature=1.0):
+
+    functions = [{
+        "name": "get_weather",
+        "description": "Get the current weather for a specified location.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "The name of the city or location to get the weather for."
+                }
+            },
+            "required": ["location"]
+        }
+    }]
+
+
+    def __init__(self, depl_name='gpt-4o', temperature=1.0):
         logging.info(f"Initializing {depl_name} CLONE...")
-        self.api_key = api_key
-        self.depl_endpnt = depl_endpnt
+        self.api_key = os.getenv("GPT4o_API_KEY")
+        self.depl_endpnt = os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
         self.depl_name = depl_name
         self.temperature = temperature
 
@@ -64,11 +82,17 @@ class Gpt4Clone:
         logging.info("Generating response...")
         response = client.chat.completions.create(
             model=self.depl_name,
+            # Function calling example with weather information
+            functions=self.functions,
+            # Let the model decide to call a function
+            function_call="auto",
             temperature=float(self.temperature),
             messages=[{"role": "user", "content": message}]
         )
         logging.info("Response generated!")
-        return(response.choices[0].message.content)
+        print(response.choices[0].message)
+        return(response.choices[0].message)
+        #return(response.choices[0].message.content)
 
     def set_deployment_name(self, new_name):
         """Setter method to set the classes private variable for the model version/name"""
@@ -85,10 +109,53 @@ class Gpt4Clone:
                 DEPLOYMENT_NAME: {self.depl_name}, \
                 TEMPERATURE OF RESP: {self.temperature}")
 
+    def get_weather(self, location):
+        """
+        Fetches current weather data for the specified location using OpenWeatherMap API.
+        Method is used as an example for function calling
+
+        Args:
+            location (str): The name of the city or location.
+
+        Returns:
+            dict: A dictionary containing weather information.
+        """
+        api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+
+        if not api_key:
+            #raise ValueError("OpenWeatherMap API key not found in environment variables.")
+            logger.error("OpenWeatherMap API key not found in environment variables.")
+
+        base_url = "http://api.openweathermap.org/data/2.5/weather"
+
+        params = {
+            'q': location,
+            'appid': api_key,
+            'units': 'metric'  # Use 'imperial' for Fahrenheit
+        }
+
+        response = requests.get(base_url, params=params)
+
+        if response.status_code != 200:
+            logger.error(f"Failed to get weather data: {response.text}")
+
+        data = response.json()
+
+        # Just an example.
+        weather_info = {
+            "location": "Ingolstadt",
+            "temperature": "10 degrees",
+            "description": "partially cloudy",
+            "humidity": "no humidity",
+            "wind_speed": "small gusts"
+        }
+
+        return weather_info
+
 # Init GptClone class so that the responses may be generated as soon as the frontend requests one.
 #TODO: Do not use global instantiation
-gpt_instance = Gpt4Clone(GPT4o_API_KEY, GPT4o_DEPLOYMENT_ENDPOINT)
-
+logger.info("Instantiating class Gpt4Clone")
+gpt_instance = Gpt4Clone()
 
 #TODO Also wrap this in a class
 @api_view(['POST'])
@@ -101,13 +168,37 @@ def openai_request(request):
     request : str
         Users input/request
     """
+    logger.info("openai_request got called")
     # Get the string from the request data
     fe_msg = request.data.get('data')
 
     if fe_msg:
         gpt_response = gpt_instance.generate_response(fe_msg)
-        # Process the string or save it
-        return Response({"message": f"{gpt_response}"}, status=status.HTTP_200_OK)
+
+        if gpt_response.function_call:
+            function_name = gpt_response.function_call.name
+            arguments = json.loads(gpt_response.function_call.arguments)
+
+            if function_name == "get_weather":
+                location = arguments.get("location")
+                weather_info = gpt_instance.get_weather(location)
+
+                if "error" in weather_info:
+                    return weather_info["error"]
+
+                weather_summary = (
+                    f"Current weather in {weather_info['location']}:\n"
+                    f"Temperature: {weather_info['temperature']}°C\n"
+                    f"Condition: {weather_info['description'].capitalize()}\n"
+                    f"Humidity: {weather_info['humidity']}%\n"
+                    f"Wind Speed: {weather_info['wind_speed']} m/s"
+                )
+
+                # Send "manipulated message"
+                return Response({"message": f"{weather_summary}"}, status=status.HTTP_200_OK)
+        else:
+            # Process the string or save it
+            return Response({"message": f"{gpt_response.content}"}, status=status.HTTP_200_OK)
     else:
         return Response({"error": "No input_string provided"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -121,6 +212,7 @@ def set_temperature(request):
     request : str
         Temperature value
     """
+    logger.info("set_temperature got called")
     # Get the string from the request
     input_string = request.data.get('data')
 
@@ -133,7 +225,6 @@ def set_temperature(request):
         return Response({"error": "Something went wrong while trying to read the desired temperature of the model. Debugging \
                                    the django backend may be needed."}, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['POST'])
 def set_model(request):
     """
@@ -144,6 +235,7 @@ def set_model(request):
     request : str
         Model name as string
     """
+    logger.info("set_model got called")
     # Get the string from the request
     deployment_name = request.data.get('data')
 
