@@ -147,8 +147,9 @@ function App(): JSX.Element {
       //setPreviousChats((prevChats) => [...prevChats, newChat, responseMessage])
       setLocalChats((prevChats) => [...prevChats, newChat, responseMessage])
 
-      //const updatedChats = [...localChats, newChat, responseMessage]
-      //localStorage.setItem('previousChats', JSON.stringify(updatedChats))
+      if (scrollToLastItem.current) {
+        scrollToLastItem.current.scrollTop = scrollToLastItem.current.scrollHeight // Scroll to the bottom
+      }
     }
   }, [message, currentTitle])
 
@@ -180,9 +181,6 @@ function App(): JSX.Element {
                   ) : (
                     <div style={{ display: 'block' }}>
                       <img src={ZeissLogo} alt="ChatGPT" />
-                      <RespawnUserRequest />
-                      <CopyLastResponseToClipboard />
-                      <CopyCodeOfLastResponseToClipboard />
                     </div>
                   )}
                   {isUser ? (
@@ -193,8 +191,13 @@ function App(): JSX.Element {
                   ) : (
                     <div>
                       <p className="role-title">{gptVersion}</p>
-                      <div id="response">
+                      <div>
                         <RenderOrNotToRenderMarkdown text={chatMsg.content} />
+                        <div className="copy-options">
+                          <RespawnUserRequest />
+                          <CopyLastResponseToClipboard text={chatMsg.content} />
+                          <CopyCodeOfLastResponseToClipboard text={chatMsg.content} />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -232,17 +235,16 @@ function App(): JSX.Element {
    * @returns {ReactNode} Renders a button in the chat response window so that the user may copy
    *                      the div's entire content to the users clipboard
    */
-  function CopyLastResponseToClipboard(): JSX.Element {
+  function CopyLastResponseToClipboard(text): JSX.Element {
     return (
       <div
         title="copy entire response to clipboard"
         className="refresh-request"
         id={'containerDiv'}
         onClick={() => {
-          const content = document.getElementById('response')?.innerText
           // Copy the text to the clipboard
           navigator.clipboard
-            .writeText(content?.trim())
+            .writeText(text.text?.trim())
             .then(() => {
               alert('Text copied to clipboard!')
             })
@@ -262,19 +264,15 @@ function App(): JSX.Element {
    * @returns {ReactNode} Renders a button in the chat response window so that the user may copy
    *                      only the code of the div's content to the users clipboard
    */
-  function CopyCodeOfLastResponseToClipboard(): JSX.Element {
+  function CopyCodeOfLastResponseToClipboard(text): JSX.Element {
     return (
       <div
         title="copy only code to clipboard"
         className="refresh-request"
         id={'containerDiv'}
         onClick={() => {
-          //TODO: This approach does not work for every case. Find better solution
-          // Get response of chat bot of div with id 'response'
-          const content = document.getElementById('response')?.innerText
-
           // Regular expression to match content inside triple backticks
-          const codeBlocks = content.match(/```(\w+)([\s\S]*?)```/g)
+          const codeBlocks = text.text.match(/```(\w+)([\s\S]*?)```/g)
 
           // Join all found code blocks, or return an empty string if none found
           const code = codeBlocks ? codeBlocks.join('\n') : ''
@@ -404,11 +402,7 @@ function App(): JSX.Element {
   function RenderOrNotToRenderMarkdown(text): JSX.Element {
     const renderMarkdown = window.localStorage.getItem('renderMarkdown')
     if (renderMarkdown) {
-      return (
-        <div>
-          <ReactMarkdown>{text.text}</ReactMarkdown>
-        </div>
-      )
+      return <ReactMarkdown>{text.text}</ReactMarkdown>
     }
     return <p className="gpt-response">{text.text}</p>
   }

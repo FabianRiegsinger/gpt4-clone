@@ -48,6 +48,12 @@ button {
   grid-template-columns: 0fr 1fr;
 }
 
+.copy-options {
+  display: flex;
+  border-top: 1px solid black;
+  margin-top: 20px;
+}
+
 .refresh-request {
   display: flex;
   width: 30px;
