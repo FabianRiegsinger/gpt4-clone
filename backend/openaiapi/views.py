@@ -3,8 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from openai import AzureOpenAI
 
-GPT4o_API_KEY = "" #os.getenv("GPT4o_API_KEY")
-GPT4o_DEPLOYMENT_ENDPOINT = "" #os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
+import os
+
+GPT4o_API_KEY = os.getenv("GPT4o_API_KEY")
+GPT4o_DEPLOYMENT_ENDPOINT = os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
+
+#TODO: Don't initialize logger globally
 
 class Gpt4Clone:
     """
@@ -80,6 +84,8 @@ class Gpt4Clone:
 #TODO: Do not use global instantiation
 gpt_instance = Gpt4Clone(GPT4o_API_KEY, GPT4o_DEPLOYMENT_ENDPOINT)
 
+
+#TODO Also wrap this in a class
 @api_view(['POST'])
 def openai_request(request):
     """
