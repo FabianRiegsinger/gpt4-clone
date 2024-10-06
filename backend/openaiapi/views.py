@@ -4,6 +4,11 @@ from rest_framework import status
 from openai import AzureOpenAI
 
 import os
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 GPT4o_API_KEY = os.getenv("GPT4o_API_KEY")
 GPT4o_DEPLOYMENT_ENDPOINT = os.getenv("GPT4o_DEPLOYMENT_ENDPOINT")
@@ -44,7 +49,7 @@ class Gpt4Clone:
         uses request from react frontend to generate a response via openAi's chat gpt api.
     """
     def __init__(self, api_key='', depl_endpnt='', depl_name='gpt-4o', temperature=1.0):
-        print(f"INFO: Initializing {depl_name} CLONE...")
+        logging.info(f"Initializing {depl_name} CLONE...")
         self.api_key = api_key
         self.depl_endpnt = depl_endpnt
         self.depl_name = depl_name
@@ -56,13 +61,13 @@ class Gpt4Clone:
             api_key=self.api_key,
             api_version="2024-02-01"
         )
-        print("INFO: Generating response...")
+        logging.info("Generating response...")
         response = client.chat.completions.create(
             model=self.depl_name,
             temperature=float(self.temperature),
             messages=[{"role": "user", "content": message}]
         )
-        print("INFO: Response generated!")
+        logging.info("Response generated!")
         return(response.choices[0].message.content)
 
     def set_deployment_name(self, new_name):
@@ -75,7 +80,7 @@ class Gpt4Clone:
 
     def get_private_info(self):
         """Normally, this should be prohibited. Only done here for debugging purposes."""
-        print(f"API_KEY: {self.api_key}, \
+        logging.info(f"API_KEY: {self.api_key}, \
                 DEPLOYMENT_ENDPOINT: {self.depl_endpnt}, \
                 DEPLOYMENT_NAME: {self.depl_name}, \
                 TEMPERATURE OF RESP: {self.temperature}")
@@ -121,7 +126,7 @@ def set_temperature(request):
 
     if input_string:
         gpt_instance.set_temperature(input_string)
-        print(f"INFO: Successfully set temperature of model to {input_string}")
+        logging.info(f"Successfully set temperature of model to {input_string}")
         # Process the string or save it
         return Response({"message": f"Received: Temperature of model has been set successfully to: {input_string}"}, status=status.HTTP_200_OK)
     else:
