@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { RxReload, RxCopy, RxCode } from 'react-icons/rx'
+import ReactMarkdown from 'react-markdown';
 
 import { AxiosRequestHandler } from './components/AxiosRequestHandler'
 import ZeissLogo from '../../../resources/zeiss-logo.png'
@@ -13,9 +14,9 @@ import ZeissLogo from '../../../resources/zeiss-logo.png'
 function App(): JSX.Element {
   const [text, setText] = useState('')
   const [gptVersion, setGptVersion] = useState('')
-  const [modelTemp, setModelTemp] = useState(1.0)
+  const [modelTemp] = useState(1.0)
   const [message, setMessage] = useState('') // was null before
-  const [previousChats, setPreviousChats] = useState([])
+  const [previousChats] = useState([])
   const [localChats, setLocalChats] = useState([])
   const [currentTitle, setCurrentTitle] = useState('') // was null before
   const [isResponseLoading, setIsResponseLoading] = useState(false)
@@ -82,8 +83,13 @@ function App(): JSX.Element {
    *                 Secondly: Check if string is only known configuration string to configure model temperature.
    */
   const submitHandler = async (e) => {
-    // safe text from input field in browser storage
+    // safe text from input field in local browser storage
     window.localStorage.setItem('lastRequest', e.target[0].value)
+
+    // Check if the word markdown has been used in the users request.
+    e.target[0].value.toLowerCase().includes('markdown')
+      ? window.localStorage.setItem('renderMarkdown', 'true')
+      : window.localStorage.setItem('renderMarkdown', 'false')
 
     // Check if request empty
     if (e.target[0].value === '') {
@@ -186,12 +192,9 @@ function App(): JSX.Element {
                     </div>
                   ) : (
                     <div>
-                      <p className="role-title">
-                        {gptVersion}: Unclear from task if answer should always or on demand be
-                        printed in markdown format
-                      </p>
+                      <p className="role-title">{gptVersion}</p>
                       <div id="response">
-                        <p className="gpt-response">{chatMsg.content}</p>
+                        <RenderOrNotToRenderMarkdown text={chatMsg.content} />
                       </div>
                     </div>
                   )}
@@ -391,6 +394,23 @@ function App(): JSX.Element {
         )}
       </>
     )
+  }
+
+  /**
+   * @function RenderOrNotToRenderMarkdown
+   * @param {text}
+   * @returns {ReactNode} Depending on boolean 'renderMarkdown' either normal text gets rendered, or Markodown style
+   */
+  function RenderOrNotToRenderMarkdown(text): JSX.Element {
+    const renderMarkdown = window.localStorage.getItem('renderMarkdown')
+    if (renderMarkdown) {
+      return (
+        <div>
+          <ReactMarkdown>{text.text}</ReactMarkdown>
+        </div>
+      )
+    }
+    return <p className="gpt-response">{text.text}</p>
   }
 }
 

@@ -2,7 +2,9 @@
 
 # Check if the folder exists
 if [ -d "electron-react-frontend/node_modules" ]; then
-    echo "Folder exists."
+    echo "Project dependencies seem to be installed.."
+    echo "Starting application..."
+    npm run dev --prefix ./electron-react-frontend
 else
     echo "node_modules does not exist..."
     echo "Executing npm install to install project dependencies..."
