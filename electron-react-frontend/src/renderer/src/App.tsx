@@ -16,7 +16,7 @@ function App(): JSX.Element {
   const [gptVersion, setGptVersion] = useState('')
   const [modelTemp] = useState(1.0)
   const [message, setMessage] = useState('') // was null before
-  const [previousChats] = useState([])
+  //const [previousChats] = useState([])
   const [localChats, setLocalChats] = useState([])
   const [currentTitle, setCurrentTitle] = useState('') // was null before
   const [isResponseLoading, setIsResponseLoading] = useState(false)
@@ -32,6 +32,8 @@ function App(): JSX.Element {
     setText('')
     window.localStorage.setItem('lastRequest', '')
     setCurrentTitle('')
+    setLocalChats([])
+    setPrevious
   }
 
   /**
@@ -154,9 +156,7 @@ function App(): JSX.Element {
   }, [message, currentTitle])
 
   //TODO: Finalize multiple chat window attempt
-  const currentChat = (localChats || previousChats).filter(
-    (prevChat) => prevChat.title === currentTitle
-  )
+  const currentChat = localChats.filter((prevChat) => prevChat.title === currentTitle)
 
   // Returns UI of entire app
   return (
