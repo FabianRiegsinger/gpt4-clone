@@ -8,4 +8,7 @@
     "service": "gpt4oclone",
     "workspaceFolder": "/workspace",
     "shutdownAction": "stopCompose"
+
+    // set folder permissions, trusted git directories
+    //"postCreateCommand": "bash /workspace/.devcontainer/scripts/start_django_backend.sh"
 }
