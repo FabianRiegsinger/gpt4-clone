@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { BiUser, BiSend, BiSolidUserCircle } from 'react-icons/bi'
 import { RxReload, RxCopy, RxCode } from 'react-icons/rx'
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown'
 
 import { AxiosRequestHandler } from './components/AxiosRequestHandler'
 import ZeissLogo from '../../../resources/zeiss-logo.png'
@@ -33,7 +33,6 @@ function App(): JSX.Element {
     window.localStorage.setItem('lastRequest', '')
     setCurrentTitle('')
     setLocalChats([])
-    setPrevious
   }
 
   /**
@@ -43,8 +42,14 @@ function App(): JSX.Element {
    *                 Uses Rest API to set gpt model type to gpt-4o.
    */
   const chooseGpt4o = (): any => {
-    AxiosRequestHandler('gpt-4o', 'set_model')
-    setGptVersion('gpt-4o')
+    const retMsg = AxiosRequestHandler('gpt-4o', 'set_model')
+    retMsg.then((result: string) => {
+      if (result.includes('Error')) {
+        alert('Please start backend. Not running!')
+      } else {
+        setGptVersion('gpt-4o')
+      }
+    })
   }
 
   /**
@@ -54,8 +59,14 @@ function App(): JSX.Element {
    *                 Uses Rest API to set gpt model type to gpt-4o-mini
    */
   const chooseGpt4Mini = (): any => {
-    AxiosRequestHandler('gpt-4o-mini', 'set_model')
-    setGptVersion('gpt-4o-mini')
+    const retMsg = AxiosRequestHandler('gpt-4o-mini', 'set_model')
+    retMsg.then((result: string) => {
+      if (result.includes('Error')) {
+        alert('Please start backend. Not running!')
+      } else {
+        setGptVersion('gpt-4o')
+      }
+    })
   }
 
   /**
@@ -78,13 +89,13 @@ function App(): JSX.Element {
   }
 
   /**
-   * @function submitHandler
+   * @function submitUserRequest
    * @param {any} e event type
    * @return {empty} Main entry point for the users request.
    *                 First check if request is empty. If so, cancel further process.
    *                 Secondly: Check if string is only known configuration string to configure model temperature.
    */
-  const submitHandler = async (e) => {
+  const submitUserRequest = async (e) => {
     // safe text from input field in local browser storage
     window.localStorage.setItem('lastRequest', e.target[0].value)
 
@@ -207,7 +218,7 @@ function App(): JSX.Element {
           </ul>
         </div>
         <div className="main-bottom">
-          <form className="form-container" onSubmit={submitHandler}>
+          <form className="form-container" onSubmit={submitUserRequest}>
             <input
               type="text"
               placeholder="Send a message."
