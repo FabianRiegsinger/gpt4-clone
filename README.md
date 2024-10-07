@@ -19,10 +19,10 @@ This project contains two main folders:
 
 * ./backend - Django backend to handle the REST API calls from the frontend and the OpenAi API
 * ./electron-react-front - electron application with react ui framework (+typescriptsupport)to handle user input and OpenAI API responses
-* .DOCKERFILE - Contains necessary configuration to start frontend and backend (under construction)
+* .DOCKERFILE (**unfinished**) - Contains necessary configuration to start frontend and backend (under construction)
 
 ```
-NOTE: If using Docker does not work on the users hardware, there is a second possibility to start the backend and frontend manually.
+NOTE: If using Docker does not work on the users hardware (is is not configured completely), there is a second possibility to start the backend and frontend manually.
 For further information on how to proceed manually, please refer to respective README files.
 ```
 
@@ -37,6 +37,13 @@ During the development the following software has been used. For backend and fro
 * [Readme Backend](backend/README.md)
 * [Readme Frontend](electron-react-frontend/README.md)
 
+## Start application without Docker
+
+There are two scripts which aid the process of starting the application (frontend and backend) manually. `start_django_backeend.sh` and `start_install_elec_react_frontend.sh`. Before beeing able to use the backend bash script, please ensure to edit the file with the correct OpenAI API key and endpoint:
+
+    export GPT4o_API_KEY=<enter key here>
+    export GPT4o_DEPLOYMENT_ENDPOINT=<enter endpoint here>
+
 ### Startup process broken down into steps (with VSCode + Extensions)
 
 1. Start you Docker instance (in my case Docker Desktop to get the daemon running)
@@ -44,3 +51,23 @@ During the development the following software has been used. For backend and fro
 3. Open VSCode and open the git repository as a folder.
 4. Press `Shift + Command + P (Mac) / Ctrl + Shift + P (Windows/Linux).` to open the command pallette and etder `Dev Containers: Rebuild and Reopen in Dev Containers`
 5. The VSCode Extension should now take over and create a Docker container in addition to starting the backend and frontend
+
+
+## Task description
+
+ - [x] Use Django as the backend and React as the frontend.
+ - [ ] Run the whole project in a Docker container.
+ - [x] Allow users to select between GPT-4o and GPT-4o mini and change the
+temperature of the responses (0.2, 0.7, and 0.9).
+ - [x] Request answers in Markdown format and display the answers in respect to
+the given format.
+ - [x] Document functions, etc. via Docstrings.
+
+- Pick one of the following:
+   - [x] Format the output in a way that's easy to differentiate between code
+and text.
+   - [x] Implement an example of function calling (live weather information,
+stock prices, etc.).
+   - [x] Add a way to copy the whole response or just the code of a response
+without having to select everything manually.
+   - [x] Give the possibility to regenerate a response.
