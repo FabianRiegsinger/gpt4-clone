@@ -175,7 +175,7 @@ def openai_request(request):
     if fe_msg:
         gpt_response = gpt_instance.generate_response(fe_msg)
 
-        if gpt_response.function_call:
+        if gpt_response.function_call == "get_weather":
             function_name = gpt_response.function_call.name
             arguments = json.loads(gpt_response.function_call.arguments)
 

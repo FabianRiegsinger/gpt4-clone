@@ -13,7 +13,8 @@ export async function AxiosRequestHandler(msg: string | null, api_key: string): 
       data: msg
     })
     // If successful return response of api
-    return response
+    console.log(response.data.message)
+    return response.data.message
   } catch (error) {
     if (error.response) {
       // Server responded with a status other than 200 range

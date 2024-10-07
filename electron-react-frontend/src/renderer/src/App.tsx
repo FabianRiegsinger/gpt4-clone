@@ -44,6 +44,7 @@ function App(): JSX.Element {
   const chooseGpt4o = (): any => {
     const retMsg = AxiosRequestHandler('gpt-4o', 'set_model')
     retMsg.then((result: string) => {
+      console.log(result)
       if (result.includes('Error')) {
         alert('Please start backend. Not running!')
       } else {
@@ -132,7 +133,7 @@ function App(): JSX.Element {
     const return_msg = await AxiosRequestHandler(e.target[0].value, 'openai_request')
 
     // display message to user
-    setMessage(return_msg.data.message)
+    setMessage(return_msg)
 
     // Stop loading/processing text in input field
     setIsResponseLoading(false)

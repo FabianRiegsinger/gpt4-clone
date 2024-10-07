@@ -3,10 +3,7 @@
 ```
 NOTE: For this application to work an AzureOpenAI endpoint and an API key needs to be pasted at the right spot.
 
-In backend/openaiapi/views.py please provide necessary information in line 6 and 7!
-
-GPT4o_API_KEY = ""
-GPT4o_DEPLOYMENT_ENDPOINT = ""
+This can be done by exporting both as environmental variables or using the script `start_django_backend.sh`
 ```
 
 This is the Django backend of this Gpt4o clone. It connects the electron react frontend via REST API calls to share the users inputs with the OpenAI API and present them via the same communction channel to the frontend.

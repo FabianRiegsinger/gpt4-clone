@@ -3,10 +3,7 @@
 ```
 NOTE: For this application to work an AzureOpenAI endpoint and an API key needs to be pasted at the right spot.
 
-In backend/openaiapi/views.py please provide necessary information in line 6 and 7!
-
-GPT4o_API_KEY = ""
-GPT4o_DEPLOYMENT_ENDPOINT = ""
+This can be done by exporting both as environmental variables or using the script `start_django_backend.sh`
 ```
 
 This is the frontend of the Gpt4o clone. At its core it is a JavaScript, HTML, CSS application at its base, `React`(UI framework) in conjunction with the build tooling `electron-vite` wrapped around. The latter making it a platform independent application running outside of the browser.
@@ -42,4 +39,7 @@ NOTE: Please check beforehand if the backend is running. Otherwise, the users re
 
 ![version](misc/version.png)
 
-![app](misc/response.png)
+![app](misc/app.png)
+
+![markdown](misc/markdown.png)
+
