@@ -16,7 +16,6 @@ function App(): JSX.Element {
   const [gptVersion, setGptVersion] = useState('')
   const [modelTemp] = useState(1.0)
   const [message, setMessage] = useState('') // was null before
-  //const [previousChats] = useState([])
   const [localChats, setLocalChats] = useState([])
   const [currentTitle, setCurrentTitle] = useState('') // was null before
   const [isResponseLoading, setIsResponseLoading] = useState(false)
@@ -83,7 +82,9 @@ function App(): JSX.Element {
     const temp_number = match ? match[0] : null
     if (temp_number) {
       console.log(`Temperature set for ${gptVersion} to ${temp_number}`)
-      AxiosRequestHandler(temp_number, 'set_temperature')
+      const return_msg = await AxiosRequestHandler(temp_number, 'set_temperature')
+      // display message to user
+      setMessage(return_msg)
     } else {
       console.log('Invalid input! Please try again')
     }

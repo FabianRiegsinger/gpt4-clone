@@ -90,7 +90,6 @@ class Gpt4Clone:
             messages=[{"role": "user", "content": message}]
         )
         logging.info("Response generated!")
-        print(response.choices[0].message)
         return(response.choices[0].message)
         #return(response.choices[0].message.content)
 
@@ -123,23 +122,23 @@ class Gpt4Clone:
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')
 
         if not api_key:
-            #raise ValueError("OpenWeatherMap API key not found in environment variables.")
             logger.error("OpenWeatherMap API key not found in environment variables.")
 
-        base_url = "http://api.openweathermap.org/data/2.5/weather"
+        #TODO: Get API key and uncomment below to get a real response
+        #base_url = "http://api.openweathermap.org/data/2.5/weather"
 
-        params = {
-            'q': location,
-            'appid': api_key,
-            'units': 'metric'  # Use 'imperial' for Fahrenheit
-        }
+        #params = {
+        #    'q': location,
+        #    'appid': api_key,
+        #    'units': 'metric'  # Use 'imperial' for Fahrenheit
+        #}
 
-        response = requests.get(base_url, params=params)
+        #response = requests.get(base_url, params=params)
 
-        if response.status_code != 200:
-            logger.error(f"Failed to get weather data: {response.text}")
+        #if response.status_code != 200:
+        #    logger.error(f"Failed to get weather data: {response.text}")
 
-        data = response.json()
+        #data = response.json()
 
         # Just an example.
         weather_info = {
@@ -220,7 +219,7 @@ def set_temperature(request):
         gpt_instance.set_temperature(input_string)
         logging.info(f"Successfully set temperature of model to {input_string}")
         # Process the string or save it
-        return Response({"message": f"Received: Temperature of model has been set successfully to: {input_string}"}, status=status.HTTP_200_OK)
+        return Response({"message": f"Temperature of model has been set successfully to: {input_string}"}, status=status.HTTP_200_OK)
     else:
         return Response({"error": "Something went wrong while trying to read the desired temperature of the model. Debugging \
                                    the django backend may be needed."}, status=status.HTTP_400_BAD_REQUEST)
