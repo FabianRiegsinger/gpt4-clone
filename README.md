@@ -26,7 +26,7 @@ NOTE: If using Docker does not work on the users hardware (is is not configured 
 For further information on how to proceed manually, please refer to respective README files.
 ```
 
-## Start Application via Docker
+## Start Application via Docker (May induce problems on your system)
 
 During the development the following software has been used. For backend and frontend specific dependencies please refer to respective README files:
 * Docker Desktop: 4.34.2
@@ -39,7 +39,7 @@ During the development the following software has been used. For backend and fro
 
 ## Start application without Docker
 
-There are two scripts which aid the process of starting the application (frontend and backend) manually. `start_django_backeend.sh` and `start_install_elec_react_frontend.sh`. Before beeing able to use the backend bash script, please ensure to edit the file with the correct OpenAI API key and endpoint:
+There are four scripts which aid the process of starting the application (frontend and backend) manually depending on the syste you are running on. `start_django_backeend.sh` and `start_install_elec_react_frontend.sh` or its Windows equivalents. Before beeing able to use the backend bash script, please ensure to edit the file with the correct OpenAI API key and endpoint:
 
     export GPT4o_API_KEY=<enter key here>
     export GPT4o_DEPLOYMENT_ENDPOINT=<enter endpoint here>

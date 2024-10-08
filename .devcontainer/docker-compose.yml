@@ -7,11 +7,11 @@ services:
     ports:
       - '5173:5173'
     command: /bin/sh -c "while sleep 1000; do :; done"
-  #gpt4oback:
-  #  build:
-  #    context: ..
-  #    dockerfile: .devcontainer/Dockerfile.backend
-  #  hostname: devcon
-  #  ports:
-  #    - '8000:8000'
-  #  command: /bin/sh -c "while sleep 1000; do :; done"
+  gpt4oback:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.backend
+    hostname: devcon
+    ports:
+      - '8000:8000'
+    command: /bin/sh -c "while sleep 1000; do :; done"

@@ -81,7 +81,6 @@ function App(): JSX.Element {
     // Convert extracted number to floating point if possible. Otherwise, return null
     const temp_number = match ? match[0] : null
     if (temp_number) {
-      console.log(`Temperature set for ${gptVersion} to ${temp_number}`)
       const return_msg = await AxiosRequestHandler(temp_number, 'set_temperature')
       // display message to user
       setMessage(return_msg)

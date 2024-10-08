@@ -174,27 +174,25 @@ def openai_request(request):
     if fe_msg:
         gpt_response = gpt_instance.generate_response(fe_msg)
 
-        if gpt_response.function_call == "get_weather":
-            function_name = gpt_response.function_call.name
+        if gpt_response.function_call.name == "get_weather":
             arguments = json.loads(gpt_response.function_call.arguments)
 
-            if function_name == "get_weather":
-                location = arguments.get("location")
-                weather_info = gpt_instance.get_weather(location)
+            location = arguments.get("location")
+            weather_info = gpt_instance.get_weather(location)
 
-                if "error" in weather_info:
-                    return weather_info["error"]
+            if "error" in weather_info:
+                return weather_info["error"]
 
-                weather_summary = (
-                    f"Current weather in {weather_info['location']}:\n"
-                    f"Temperature: {weather_info['temperature']}°C\n"
-                    f"Condition: {weather_info['description'].capitalize()}\n"
-                    f"Humidity: {weather_info['humidity']}%\n"
-                    f"Wind Speed: {weather_info['wind_speed']} m/s"
-                )
+            weather_summary = (
+                f"Current weather in {weather_info['location']}:\n"
+                f"Temperature: {weather_info['temperature']}°C\n"
+                f"Condition: {weather_info['description'].capitalize()}\n"
+                f"Humidity: {weather_info['humidity']}\n"
+                f"Wind Speed: {weather_info['wind_speed']} m/s"
+            )
 
-                # Send "manipulated message"
-                return Response({"message": f"{weather_summary}"}, status=status.HTTP_200_OK)
+            # Send "manipulated message"
+            return Response({"message": f"{weather_summary}"}, status=status.HTTP_200_OK)
         else:
             # Process the string or save it
             return Response({"message": f"{gpt_response.content}"}, status=status.HTTP_200_OK)
