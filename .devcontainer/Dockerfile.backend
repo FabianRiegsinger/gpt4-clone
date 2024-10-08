@@ -1,0 +1,14 @@
+# Set up Django backend
+FROM python:3.12 as backend
+
+# Change dir to workspace
+WORKDIR /workspace
+
+# Copy host workspace to Docker workspace
+COPY . .
+
+# install requirements for the django backend
+RUN python3 -m pip install -r backend/requirements.txt
+
+# Command to run the Django development server
+ENTRYPOINT ["python3", "backend/manage.py", "runserver"]

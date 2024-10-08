@@ -5,6 +5,6 @@
     "dockerComposeFile": [
         "docker-compose.yml"
     ],
-    "service": "gpt4oclone",
-    "workspaceFolder": "/workspace",
+    "service": "gpt4ofront",
+    "workspaceFolder": "/workspace"
 }
