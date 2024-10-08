@@ -4,13 +4,16 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
     environment:
-      - DISPLAY=$DISPLAY
-      - WAYLAND_DISPLAY=x11
+      - DISPLAY=:99
+      - WAYLAND_DISPLAY=wayland-0
       - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
     hostname: devcon
     volumes:
+      - "$HOME/.Xauthority:/root/.Xauthority:rw"
       - ..:/workspace:cached
       # enable graphical applications in devcontainer via wayland
       - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /tmp/.X11-unix:/tmp/.X11-unix  # Mount X11 if needed
+      - /private/tmp/.X11-unix:/tmp/.X11-unix
       - /run/desktop/mnt/host/wslg:/mnt/wslg
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: bash -c "Xvfb :99 -screen 0 1024x768x24"
